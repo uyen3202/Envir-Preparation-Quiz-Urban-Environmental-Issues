@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preparation Quiz: Urban Environmental Issues</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f0fdf4; color: #1f2937; }
+        
+        .droppable-area {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 150px;
+            min-height: 36px;
+            border: 2px dashed #22c55e;
+            border-radius: 0.375rem;
+            background-color: #f0fdfa;
+            vertical-align: middle;
+            padding: 0 8px;
+            transition: all 0.2s;
+        }
+        .droppable-area.drag-over {
+            background-color: #bbf7d0;
+            border-style: solid;
+        }
+        .draggable-item {
+            cursor: grab;
+            display: inline-block;
+            background-color: #ffffff;
+            border: 1px solid #16a34a;
+            color: #15803d;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-weight: 500;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            transition: transform 0.1s;
+        }
+        .draggable-item:active {
+            cursor: grabbing;
+            transform: scale(0.95);
+        }
+        
+        .match-drop-zone {
+            min-height: 60px;
+            border: 2px dashed #cbd5e1;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            background-color: #f8fafc;
+        }
+        .match-drop-zone.drag-over {
+            background-color: #e2e8f0;
+            border-color: #94a3b8;
+        }
+        .match-item {
+            cursor: grab;
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            padding: 12px;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            width: 100%;
+        }
+        .match-item:active { cursor: grabbing; }
+
+        .correct-ans { border-color: #22c55e !important; background-color: #dcfce7 !important; }
+        .wrong-ans { border-color: #ef4444 !important; background-color: #fee2e2 !important; }
+
+        #submit-banner {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 50;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        #submit-banner.show {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="pb-20">
+
+    <div id="submit-banner" class="bg-green-600 text-white shadow-lg">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-check-circle text-2xl"></i>
+                <div>
+                    <h3 class="font-bold text-lg leading-tight">Nộp bài thành công!</h3>
+                    <p class="text-sm text-green-100">Điểm tự động của bạn: <span id="banner-score" class="font-bold text-white"></span></p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <input type="text" id="share-link" readonly class="text-sm text-gray-800 bg-white px-2 py-1.5 rounded w-64 outline-none">
+                <button onclick="copyLink()" class="bg-white text-green-700 hover:bg-green-50 px-4 py-1.5 rounded font-semibold transition flex items-center space-x-1">
+                    <i class="fas fa-copy"></i> <span>Copy Link Nộp Bài</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Header & Name Input -->
+        <div class="bg-white rounded-2xl shadow-sm border border-green-100 p-6 mb-8 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex items-center space-x-4">
+                <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-green-100 text-green-600">
+                    <i class="fas fa-leaf text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Preparation Quiz: Urban Environmental Issues</h1>
+                    <p class="text-gray-500 text-sm mt-1">Bài kiểm tra chuẩn bị kiến thức xã hội. Điền tên của bạn trước khi nộp bài!</p>
+                </div>
+            </div>
+            <div class="w-full md:w-auto">
+                <input type="text" id="student-name" placeholder="Nhập Họ và Tên của bạn..." class="w-full md:w-72 px-4 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none font-semibold text-green-800 bg-green-50 placeholder-green-600">
+            </div>
+        </div>
+
+        <div id="quiz-container" class="space-y-8">
+            
+            <!-- PART 1: Multiple Choice -->
+            <section class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <div class="flex items-center mb-4">
+                    <span class="bg-green-100 text-green-700 text-sm font-bold px-3 py-1 rounded-full mr-3">Part 1</span>
+                    <h3 class="text-xl font-bold">Multiple Choice (Kiến thức chung)</h3>
+                </div>
+                <div class="space-y-6" id="mcq-container">
+                    <div class="mcq-question" data-ans="B">
+                        <p class="font-semibold mb-2">1. Việc phụ thuộc quá nhiều vào nhiên liệu hóa thạch (fossil fuels) sẽ dẫn đến hệ quả trực tiếp nào dưới đây?</p>
+                        <div class="space-y-2 pl-4">
+                            <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-1 rounded"><input type="radio" name="q1" value="A" class="form-radio text-green-600"> <span>A. Khôi phục đa dạng sinh học</span></label>
+                            <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-1 rounded"><input type="radio" name="q1" value="B" class="form-radio text-green-600"> <span>B. Cạn kiệt tài nguyên thiên nhiên (Natural resource depletion)</span></label>
+                            <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-1 rounded"><input type="radio" name="q1" value="C" class="form-radio text-green-600"> <span>C. Sa mạc hóa ngay lập tức</span></label>
+                            <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-1 rounded"><input type="radio" name="q1" value="D" class="form-radio text-green-600"> <span>D. Tăng diện tích đất nông nghiệp</span></label>
+                        </div>
+                    </div>
+                    <div class="mcq-question" data-ans="C">
+                        <p class="font-semibold mb-2">2. Cụm từ nào được dùng để miêu tả đặc tính "khó bị phân hủy trong tự nhiên" của túi ni-lông?</p>
+                        <div class="space-y-2 pl-4">
+                            <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-1 rounded"><input type="radio" name="q2" value="A" class="form-radio text-green-600"> <span>A. Biodegradable</span></label>
+                            <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-1 rounded"><input type="radio" name="q2" value="B" class="form-radio text-green-600"> <span>B. Eco-friendly</span></label>
+                            <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-1 rounded"><input type="radio" name="q2" value="C" class="form-radio text-green-600"> <span>C. Non-biodegradable</span></label>
+                            <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-1 rounded"><input type="radio" name="q2" value="D" class="form-radio text-green-600"> <span>D. Renewable</span></label>
+                        </div>
+                    </div>
+                    <div class="mcq-question" data-ans="B">
+                        <p class="font-semibold mb-2">3. Deforestation (phá rừng) làm mất đi lớp rào cản tự nhiên (natural barrier), dẫn đến rủi ro thiên tai nào tăng cao khi mưa lớn?</p>
+                        <div class="space-y-2 pl-4">
+                            <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-1 rounded"><input type="radio" name="q3" value="A" class="form-radio text-green-600"> <span>A. Hạn hán (Droughts)</span></label>
+                            <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-1 rounded"><input type="radio" name="q3" value="B" class="form-radio text-green-600"> <span>B. Lũ lụt (Floods)</span></label>
+                            <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-1 rounded"><input type="radio" name="q3" value="C" class="form-radio text-green-600"> <span>C. Động đất (Earthquakes)</span></label>
+                            <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-1 rounded"><input type="radio" name="q3" value="D" class="form-radio text-green-600"> <span>D. Sóng thần (Tsunamis)</span></label>
+                        </div>
+                    </div>
+                    <div class="mcq-question" data-ans="C">
+                        <p class="font-semibold mb-2">4. Loài động vật nào thường được lấy làm ví dụ điển hình cho việc ăn nhầm rác thải nhựa (plastic debris) dưới đại dương?</p>
+                        <div class="space-y-2 pl-4">
+                            <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-1 rounded"><input type="radio" name="q4" value="A" class="form-radio text-green-600"> <span>A. Gấu Koala</span></label>
+                            <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-1 rounded"><input type="radio" name="q4" value="B" class="form-radio text-green-600"> <span>B. Tê giác (Rhinos)</span></label>
+                            <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-1 rounded"><input type="radio" name="q4" value="C" class="form-radio text-green-600"> <span>C. Rùa biển (Sea turtles)</span></label>
+                            <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-1 rounded"><input type="radio" name="q4" value="D" class="form-radio text-green-600"> <span>D. Chim cánh cụt</span></label>
+                        </div>
+                    </div>
+                    <div class="mcq-question" data-ans="B">
+                        <p class="font-semibold mb-2">5. Giải pháp nào sau đây giúp trực tiếp làm giảm nhu cầu mua bán (reduce demand) các sản phẩm từ động vật hoang dã?</p>
+                        <div class="space-y-2 pl-4">
+                            <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-1 rounded"><input type="radio" name="q5" value="A" class="form-radio text-green-600"> <span>A. Tăng thuế túi ni-lông</span></label>
+                            <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-1 rounded"><input type="radio" name="q5" value="B" class="form-radio text-green-600"> <span>B. Nâng cao nhận thức cộng đồng (Raise public awareness)</span></label>
+                            <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-1 rounded"><input type="radio" name="q5" value="C" class="form-radio text-green-600"> <span>C. Thúc đẩy công nghệ sạch</span></label>
+                            <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-1 rounded"><input type="radio" name="q5" value="D" class="form-radio text-green-600"> <span>D. Xây dựng thêm bãi rác</span></label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PART 2: Gap-fill & Classification -->
+            <section class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <div class="flex items-center mb-2">
+                    <span class="bg-green-100 text-green-700 text-sm font-bold px-3 py-1 rounded-full mr-3">Part 2</span>
+                    <h3 class="text-xl font-bold">Gap-fill & Phân loại (Reason / Impact)</h3>
+                </div>
+                <p class="text-sm text-gray-500 mb-4 mb-6">
+                    <strong>Hướng dẫn:</strong> Kéo các từ màu xanh ở dưới thả vào ô trống tương ứng để hoàn thành câu. Sau đó, chọn ở danh sách đổ xuống xem câu đó miêu tả <strong>Reason (Nguyên nhân)</strong> hay <strong>Impact (Hậu quả/Tác động)</strong>.
+                </p>
+
+                <!-- Word Pool -->
+                <div class="bg-green-50 p-4 rounded-lg border border-green-200 mb-6 flex flex-wrap gap-2" id="pool-gapfill" data-pool="gapfill">
+                    <div class="draggable-item" draggable="true" ondragstart="drag(event)" id="word-1" data-val="combustion">combustion</div>
+                    <div class="draggable-item" draggable="true" ondragstart="drag(event)" id="word-2" data-val="convenience">convenience</div>
+                    <div class="draggable-item" draggable="true" ondragstart="drag(event)" id="word-3" data-val="landfills">landfills</div>
+                    <div class="draggable-item" draggable="true" ondragstart="drag(event)" id="word-4" data-val="microplastics">microplastics</div>
+                    <div class="draggable-item" draggable="true" ondragstart="drag(event)" id="word-5" data-val="floods">floods</div>
+                    <div class="draggable-item" draggable="true" ondragstart="drag(event)" id="word-6" data-val="breeding">breeding</div>
+                    <div class="draggable-item" draggable="true" ondragstart="drag(event)" id="word-7" data-val="horns">horns</div>
+                    <div class="draggable-item" draggable="true" ondragstart="drag(event)" id="word-8" data-val="contaminate">contaminate</div>
+                    <div class="draggable-item" draggable="true" ondragstart="drag(event)" id="word-9" data-val="heatwaves">heatwaves</div>
+                    <div class="draggable-item" draggable="true" ondragstart="drag(event)" id="word-10" data-val="depletion">depletion</div>
+                </div>
+
+                <div class="space-y-5 text-gray-800 leading-loose" id="gapfill-container">
+                    <!-- S1 to S10 -->
+                    <div class="gapfill-row pb-3 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="flex-1">1. The extraction and <div class="droppable-area mx-1" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="combustion" data-pool="gapfill"></div> of fossil fuels release large amounts of greenhouse gases.</div>
+                        <select class="type-select w-40 border-gray-300 rounded text-sm p-1.5 border" data-expected="Reason">
+                            <option value="">-- Phân loại --</option>
+                            <option value="Reason">Reason</option>
+                            <option value="Impact">Impact</option>
+                        </select>
+                    </div>
+                    <div class="gapfill-row pb-3 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="flex-1">2. Overconsumption of plastic bags is driven by their low cost and <div class="droppable-area mx-1" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="convenience" data-pool="gapfill"></div>.</div>
+                        <select class="type-select w-40 border-gray-300 rounded text-sm p-1.5 border" data-expected="Reason">
+                            <option value="">-- Phân loại --</option>
+                            <option value="Reason">Reason</option>
+                            <option value="Impact">Impact</option>
+                        </select>
+                    </div>
+                    <div class="gapfill-row pb-3 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="flex-1">3. Plastic bags are non-biodegradable and accumulate in <div class="droppable-area mx-1" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="landfills" data-pool="gapfill"></div>, reducing soil quality.</div>
+                        <select class="type-select w-40 border-gray-300 rounded text-sm p-1.5 border" data-expected="Impact">
+                            <option value="">-- Phân loại --</option>
+                            <option value="Reason">Reason</option>
+                            <option value="Impact">Impact</option>
+                        </select>
+                    </div>
+                    <div class="gapfill-row pb-3 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="flex-1">4. Plastics break down into <div class="droppable-area mx-1" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="microplastics" data-pool="gapfill"></div> and enter the food chain, posing risks to human health.</div>
+                        <select class="type-select w-40 border-gray-300 rounded text-sm p-1.5 border" data-expected="Impact">
+                            <option value="">-- Phân loại --</option>
+                            <option value="Reason">Reason</option>
+                            <option value="Impact">Impact</option>
+                        </select>
+                    </div>
+                    <div class="gapfill-row pb-3 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="flex-1">5. Without forests acting as a natural barrier, rainwater flows rapidly downhill causing <div class="droppable-area mx-1" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="floods" data-pool="gapfill"></div>.</div>
+                        <select class="type-select w-40 border-gray-300 rounded text-sm p-1.5 border" data-expected="Impact">
+                            <option value="">-- Phân loại --</option>
+                            <option value="Reason">Reason</option>
+                            <option value="Impact">Impact</option>
+                        </select>
+                    </div>
+                    <div class="gapfill-row pb-3 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="flex-1">6. Deforestation causes animals to lose their food sources, shelter, and <div class="droppable-area mx-1" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="breeding" data-pool="gapfill"></div> grounds.</div>
+                        <select class="type-select w-40 border-gray-300 rounded text-sm p-1.5 border" data-expected="Impact">
+                            <option value="">-- Phân loại --</option>
+                            <option value="Reason">Reason</option>
+                            <option value="Impact">Impact</option>
+                        </select>
+                    </div>
+                    <div class="gapfill-row pb-3 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="flex-1">7. Rhinos are illegally hunted for their <div class="droppable-area mx-1" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="horns" data-pool="gapfill"></div> which are highly valued as luxury items.</div>
+                        <select class="type-select w-40 border-gray-300 rounded text-sm p-1.5 border" data-expected="Reason">
+                            <option value="">-- Phân loại --</option>
+                            <option value="Reason">Reason</option>
+                            <option value="Impact">Impact</option>
+                        </select>
+                    </div>
+                    <div class="gapfill-row pb-3 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="flex-1">8. Industrial waste and toxic chemicals <div class="droppable-area mx-1" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="contaminate" data-pool="gapfill"></div> rivers, oceans, and soil.</div>
+                        <select class="type-select w-40 border-gray-300 rounded text-sm p-1.5 border" data-expected="Reason">
+                            <option value="">-- Phân loại --</option>
+                            <option value="Reason">Reason</option>
+                            <option value="Impact">Impact</option>
+                        </select>
+                    </div>
+                    <div class="gapfill-row pb-3 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="flex-1">9. Climate change brings severe droughts and <div class="droppable-area mx-1" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="heatwaves" data-pool="gapfill"></div>, causing animals to struggle to adapt.</div>
+                        <select class="type-select w-40 border-gray-300 rounded text-sm p-1.5 border" data-expected="Reason">
+                            <option value="">-- Phân loại --</option>
+                            <option value="Reason">Reason</option>
+                            <option value="Impact">Impact</option>
+                        </select>
+                    </div>
+                    <div class="gapfill-row flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="flex-1">10. Heavy reliance on finite fossil fuels leads to natural resource <div class="droppable-area mx-1" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="depletion" data-pool="gapfill"></div>.</div>
+                        <select class="type-select w-40 border-gray-300 rounded text-sm p-1.5 border" data-expected="Impact">
+                            <option value="">-- Phân loại --</option>
+                            <option value="Reason">Reason</option>
+                            <option value="Impact">Impact</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PART 3: Matching Problems & Solutions -->
+            <section class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <div class="flex items-center mb-2">
+                    <span class="bg-green-100 text-green-700 text-sm font-bold px-3 py-1 rounded-full mr-3">Part 3</span>
+                    <h3 class="text-xl font-bold">Matching: Problems & Solutions</h3>
+                </div>
+                <p class="text-sm text-gray-500 mb-6">
+                    <strong>Hướng dẫn:</strong> Kéo các ô "Solutions" (bên phải) thả vào vị trí tương ứng bên cạnh "Problems" (bên trái) để nối giải pháp phù hợp với từng vấn đề.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Problems & Drop zones -->
+                    <div class="space-y-4" id="match-container">
+                        <h4 class="font-bold text-gray-700 border-b pb-2">Vấn đề (Problems)</h4>
+                        
+                        <div class="flex flex-col gap-2">
+                            <div class="bg-red-50 text-red-800 p-3 rounded border border-red-100 text-sm font-medium">1. Cạn kiệt nguồn nhiên liệu hóa thạch do phụ thuộc quá mức.</div>
+                            <div class="match-drop-zone" ondrop="dropMatch(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="sol-1" data-pool="match">
+                                <span class="text-gray-400 text-sm italic pointer-events-none">Thả Solution vào đây...</span>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-2">
+                            <div class="bg-red-50 text-red-800 p-3 rounded border border-red-100 text-sm font-medium">2. Tiêu thụ quá mức túi ni-lông dùng một lần do giá rẻ.</div>
+                            <div class="match-drop-zone" ondrop="dropMatch(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="sol-2" data-pool="match">
+                                <span class="text-gray-400 text-sm italic pointer-events-none">Thả Solution vào đây...</span>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-2">
+                            <div class="bg-red-50 text-red-800 p-3 rounded border border-red-100 text-sm font-medium">3. Rác thải nhựa lọt ra ngoài môi trường do xử lý kém.</div>
+                            <div class="match-drop-zone" ondrop="dropMatch(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="sol-3" data-pool="match">
+                                <span class="text-gray-400 text-sm italic pointer-events-none">Thả Solution vào đây...</span>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-2">
+                            <div class="bg-red-50 text-red-800 p-3 rounded border border-red-100 text-sm font-medium">4. Săn bắt động vật hoang dã trái phép (vd: Tê giác).</div>
+                            <div class="match-drop-zone" ondrop="dropMatch(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="sol-4" data-pool="match">
+                                <span class="text-gray-400 text-sm italic pointer-events-none">Thả Solution vào đây...</span>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-2">
+                            <div class="bg-red-50 text-red-800 p-3 rounded border border-red-100 text-sm font-medium">5. Động vật mất môi trường sống và khó sinh sản.</div>
+                            <div class="match-drop-zone" ondrop="dropMatch(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="sol-5" data-pool="match">
+                                <span class="text-gray-400 text-sm italic pointer-events-none">Thả Solution vào đây...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Solutions Pool (English) -->
+                    <div>
+                        <h4 class="font-bold text-gray-700 border-b pb-2 mb-4">Giải pháp (Solutions Pool)</h4>
+                        <div class="space-y-3" id="pool-match" data-pool="match">
+                            <div class="match-item text-sm text-blue-800" draggable="true" ondragstart="drag(event)" id="drag-sol-5" data-val="sol-5">
+                                Create artificial and captive breeding programs to conserve species.
+                            </div>
+                            <div class="match-item text-sm text-blue-800" draggable="true" ondragstart="drag(event)" id="drag-sol-1" data-val="sol-1">
+                                Encourage the adoption of cleaner and environmentally friendly technologies.
+                            </div>
+                            <div class="match-item text-sm text-blue-800" draggable="true" ondragstart="drag(event)" id="drag-sol-3" data-val="sol-3">
+                                Improve waste management and recycling systems.
+                            </div>
+                            <div class="match-item text-sm text-blue-800" draggable="true" ondragstart="drag(event)" id="drag-sol-2" data-val="sol-2">
+                                Impose higher taxes on single-use plastics and promote reusable alternatives.
+                            </div>
+                            <div class="match-item text-sm text-blue-800" draggable="true" ondragstart="drag(event)" id="drag-sol-4" data-val="sol-4">
+                                Strengthen hunting regulations, impose heavier fines, and increase wildlife patrols.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PART 4: Essays -->
+            <section class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <div class="flex items-center mb-2">
+                    <span class="bg-green-100 text-green-700 text-sm font-bold px-3 py-1 rounded-full mr-3">Part 4</span>
+                    <h3 class="text-xl font-bold">Tự luận (Tư duy chi tiết)</h3>
+                </div>
+                <p class="text-sm text-gray-500 mb-6">
+                    <strong>Hướng dẫn:</strong> Trả lời ngắn gọn các câu hỏi sau dựa trên kiến thức và tư duy cá nhân. Phần này sẽ do giáo viên trực tiếp đọc và chấm điểm.
+                </p>
+
+                <div class="space-y-6">
+                    <div>
+                        <label class="block font-semibold text-gray-800 mb-2">1. Tại sao mọi người lại càng ngày càng có xu hướng dùng túi ni-lông dù biết nó không thân thiện với môi trường?</label>
+                        <textarea class="w-full border border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-green-500" rows="3" placeholder="Viết câu trả lời của bạn vào đây..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-800 mb-2">2. Tại sao rác thải nhựa có thể lọt vào chuỗi thức ăn (food chain) và gây hại đến sức khỏe con người?</label>
+                        <textarea class="w-full border border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-green-500" rows="3" placeholder="Viết câu trả lời của bạn vào đây..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-800 mb-2">3. Phân tích cơ chế khiến việc phá rừng (deforestation) làm tăng rủi ro lũ lụt (floods).</label>
+                        <textarea class="w-full border border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-green-500" rows="3" placeholder="Viết câu trả lời của bạn vào đây..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-800 mb-2">4. Theo bạn, biện pháp "đánh thuế cao hơn vào các sản phẩm nhựa dùng một lần" có thực sự giải quyết triệt để được vấn đề rác thải nhựa không? Tại sao?</label>
+                        <textarea class="w-full border border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-green-500" rows="3" placeholder="Viết câu trả lời của bạn vào đây..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-800 mb-2">5. Các chương trình nhân giống nuôi nhốt (captive breeding programs) giải quyết vấn đề gì trong nỗ lực bảo tồn động vật hoang dã?</label>
+                        <textarea class="w-full border border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-green-500" rows="3" placeholder="Viết câu trả lời của bạn vào đây..."></textarea>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Submit Button -->
+            <div class="text-center pt-6">
+                <button onclick="submitQuiz()" id="submit-btn" class="bg-green-600 hover:bg-green-700 text-white text-xl font-bold py-4 px-12 rounded-full shadow-lg transition-transform hover:scale-105 duration-200">
+                    <i class="fas fa-paper-plane mr-2"></i> Nộp Bài & Chấm Điểm
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Drag and Drop Logic ---
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function dragEnter(ev) {
+            ev.preventDefault();
+            if (ev.target.classList.contains('droppable-area') || ev.target.classList.contains('match-drop-zone')) {
+                ev.target.classList.add('drag-over');
+            }
+        }
+
+        function dragLeave(ev) {
+            if (ev.target.classList.contains('droppable-area') || ev.target.classList.contains('match-drop-zone')) {
+                ev.target.classList.remove('drag-over');
+            }
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.id);
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            let target = ev.target;
+            target.classList.remove('drag-over');
+            
+            const dataId = ev.dataTransfer.getData("text");
+            const draggedElement = document.getElementById(dataId);
+            
+            // Check if dragging correct type (gapfill to gapfill)
+            if(!draggedElement || draggedElement.classList.contains('match-item')) return;
+
+            // If dropped on the droppable area directly
+            if (target.classList.contains('droppable-area')) {
+                if (target.children.length > 0) {
+                    // Return existing item to pool
+                    document.getElementById('pool-gapfill').appendChild(target.children[0]);
+                } else {
+                    target.innerHTML = ''; // clear placeholder span if any
+                }
+                target.appendChild(draggedElement);
+            } 
+            // If dropped on an existing item inside the drop zone
+            else if (target.classList.contains('draggable-item') && target.parentElement.classList.contains('droppable-area')) {
+                let dropZone = target.parentElement;
+                document.getElementById('pool-gapfill').appendChild(target);
+                dropZone.appendChild(draggedElement);
+            }
+            // Return to pool
+            else if (target.id === 'pool-gapfill' || target.closest('#pool-gapfill')) {
+                document.getElementById('pool-gapfill').appendChild(draggedElement);
+            }
+        }
+
+        function dropMatch(ev) {
+            ev.preventDefault();
+            let target = ev.target;
+            target.classList.remove('drag-over');
+            
+            const dataId = ev.dataTransfer.getData("text");
+            const draggedElement = document.getElementById(dataId);
+            
+            // Check if dragging correct type (match to match)
+            if(!draggedElement || !draggedElement.classList.contains('match-item')) return;
+
+            // Resolve target (might drop on span inside dropzone)
+            if(!target.classList.contains('match-drop-zone') && target.parentElement.classList.contains('match-drop-zone')){
+                target = target.parentElement;
+            }
+
+            if (target.classList.contains('match-drop-zone')) {
+                // If there's already an item (not the placeholder span), send it back
+                const existingItem = Array.from(target.children).find(c => c.classList.contains('match-item'));
+                if (existingItem) {
+                    document.getElementById('pool-match').appendChild(existingItem);
+                }
+                
+                // Hide placeholder
+                const placeholder = target.querySelector('span');
+                if(placeholder) placeholder.style.display = 'none';
+
+                target.appendChild(draggedElement);
+            }
+            // Return to pool
+            else if (target.id === 'pool-match' || target.closest('#pool-match')) {
+                document.getElementById('pool-match').appendChild(draggedElement);
+            }
+        }
+
+        // --- Grading Logic ---
+        function submitQuiz() {
+            const studentName = document.getElementById('student-name').value.trim();
+            if (!studentName) {
+                alert("Vui lòng điền Họ và Tên của bạn ở đầu trang trước khi nộp bài!");
+                document.getElementById('student-name').focus();
+                return;
+            }
+
+            if(!confirm("Bạn đã chắc chắn muốn nộp bài? Các câu hỏi khách quan sẽ được hệ thống chấm tự động.")) return;
+
+            let totalScore = 0;
+            const maxScore = 30; // 5 (MCQ) + 10 (Gap word) + 10 (Gap type) + 5 (Match)
+
+            // Grade Part 1: MCQ (5 points)
+            const mcqs = document.querySelectorAll('.mcq-question');
+            mcqs.forEach(q => {
+                const expected = q.getAttribute('data-ans');
+                const checked = q.querySelector('input[type="radio"]:checked');
+                if (checked) {
+                    if (checked.value === expected) {
+                        totalScore += 1;
+                        q.style.color = '#15803d'; // Green text
+                        checked.parentElement.classList.add('bg-green-100');
+                    } else {
+                        q.style.color = '#b91c1c'; // Red text
+                        checked.parentElement.classList.add('bg-red-100');
+                        // Show correct answer
+                        const correctLabel = q.querySelector(`input[value="${expected}"]`).parentElement;
+                        correctLabel.classList.add('bg-green-100', 'border', 'border-green-400');
+                    }
+                } else {
+                    q.style.color = '#b91c1c';
+                    const correctLabel = q.querySelector(`input[value="${expected}"]`).parentElement;
+                    correctLabel.classList.add('bg-green-100', 'border', 'border-green-400');
+                }
+            });
+
+            // Grade Part 2: Gap Fill (20 points: 10 word + 10 type)
+            const gapDropZones = document.querySelectorAll('#gapfill-container .droppable-area');
+            gapDropZones.forEach(zone => {
+                const expectedWord = zone.getAttribute('data-expected');
+                const child = zone.querySelector('.draggable-item');
+                
+                if (child && child.getAttribute('data-val') === expectedWord) {
+                    totalScore += 1;
+                    zone.classList.add('correct-ans');
+                } else {
+                    zone.classList.add('wrong-ans');
+                    // Add small text to show correct
+                    const tooltip = document.createElement('span');
+                    tooltip.innerHTML = `<br><span class="text-xs text-red-600 font-bold">Đáp án: ${expectedWord}</span>`;
+                    zone.parentElement.appendChild(tooltip);
+                }
+            });
+
+            const typeSelects = document.querySelectorAll('#gapfill-container .type-select');
+            typeSelects.forEach(sel => {
+                const expectedType = sel.getAttribute('data-expected');
+                if (sel.value === expectedType) {
+                    totalScore += 1;
+                    sel.classList.add('correct-ans', 'text-green-700', 'font-bold');
+                } else {
+                    sel.classList.add('wrong-ans', 'text-red-700');
+                    // Add text
+                    const txt = document.createElement('span');
+                    txt.className = "text-xs text-red-600 font-bold ml-2";
+                    txt.innerText = `(Đúng: ${expectedType})`;
+                    sel.parentElement.appendChild(txt);
+                }
+                sel.disabled = true; // Lock dropdown
+            });
+
+            // Grade Part 3: Match (5 points)
+            const matchZones = document.querySelectorAll('.match-drop-zone');
+            matchZones.forEach(zone => {
+                const expectedSol = zone.getAttribute('data-expected');
+                const child = zone.querySelector('.match-item');
+                
+                if (child && child.getAttribute('data-val') === expectedSol) {
+                    totalScore += 1;
+                    zone.classList.add('correct-ans');
+                } else {
+                    zone.classList.add('wrong-ans');
+                    // Hint 
+                    const hint = document.createElement('div');
+                    hint.className = "text-xs text-red-600 mt-1 font-bold";
+                    hint.innerText = "Chưa chính xác.";
+                    zone.parentElement.appendChild(hint);
+                }
+            });
+
+            // Generate "Copy Link" details
+            const scoreStr = `${totalScore}/${maxScore}`;
+            
+            // Mock URL creation
+            const baseUrl = window.location.origin + window.location.pathname;
+            // Simple base64 encode just to make the link look realistic
+            const mockParams = btoa(`name=${encodeURIComponent(studentName)}&score=${scoreStr}`);
+            const fullUrl = `${baseUrl}?submission=${mockParams}`;
+            
+            // Update UI
+            document.getElementById('banner-score').innerText = scoreStr + " điểm";
+            document.getElementById('share-link').value = fullUrl;
+            
+            // Show Banner
+            const banner = document.getElementById('submit-banner');
+            banner.classList.add('show');
+
+            // Disable all drag events and inputs (except textareas)
+            document.querySelectorAll('.draggable-item, .match-item').forEach(el => {
+                el.setAttribute('draggable', 'false');
+                el.style.cursor = 'default';
+            });
+            document.querySelectorAll('input[type="radio"]').forEach(el => el.disabled = true);
+            document.getElementById('student-name').readOnly = true;
+            document.getElementById('submit-btn').style.display = 'none';
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Copy Link function
+        function copyLink() {
+            const linkInput = document.getElementById('share-link');
+            linkInput.select();
+            linkInput.setSelectionRange(0, 99999); // For mobile devices
+            
+            try {
+                document.execCommand('copy');
+                // Since alert() is restricted, we'll visually change the button
+                const btn = event.currentTarget;
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = `<i class="fas fa-check"></i> <span>Đã Copy!</span>`;
+                btn.classList.add('bg-green-100');
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                    btn.classList.remove('bg-green-100');
+                }, 2000);
+            } catch (err) {
+                console.error("Không thể copy tự động.");
+            }
+        }
+    </script>
+</body>
+</html>
