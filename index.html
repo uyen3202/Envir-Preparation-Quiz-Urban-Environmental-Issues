@@ -1,0 +1,1690 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preparation Quiz - Urban Environmental Issues</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #ecfdf5; color: #1f2937; scroll-behavior: smooth; }
+        
+        .droppable-area {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 140px; min-height: 32px;
+            border: 2px dashed #10b981; border-radius: 0.375rem;
+            background-color: #d1fae5; vertical-align: bottom; padding: 0 8px; margin: 0 4px; transition: all 0.2s;
+        }
+        .droppable-area.drag-over { background-color: #a7f3d0; border-style: solid; }
+        
+        .draggable-item {
+            cursor: grab; display: inline-block; background-color: #ffffff;
+            border: 1px solid #059669; color: #047857; padding: 4px 12px;
+            border-radius: 9999px; font-weight: 500; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            transition: transform 0.1s; font-size: 0.9rem;
+        }
+        .draggable-item.linking-word { border-color: #2563eb; color: #1d4ed8; background-color: #eff6ff; }
+        .draggable-item:active { cursor: grabbing; transform: scale(0.95); }
+        
+        .correct-ans { border-color: #10b981 !important; background-color: #d1fae5 !important; color: #065f46 !important; }
+        .wrong-ans { border-color: #ef4444 !important; background-color: #fee2e2 !important; color: #991b1b !important;}
+
+        .hint-content { display: none; margin-top: 8px; padding: 10px; background: #f0fdf4; border-left: 3px solid #10b981; border-radius: 4px; font-size: 0.9rem; }
+        .hint-toggle:checked ~ .hint-content { display: block; }
+        .vietnamese-translation { display: none; color: #6b7280; font-size: 0.85rem; margin-top: 4px; font-style: italic;}
+        .translation-toggle:checked ~ .vietnamese-translation { display: block; }
+
+        .match-drop-zone { min-height: 48px; border: 2px dashed #cbd5e1; border-radius: 0.5rem; display: flex; align-items: center; padding: 4px 8px; background-color: #f8fafc; }
+        .match-drop-zone.drag-over { background-color: #e2e8f0; border-color: #94a3b8; }
+        .match-item { cursor: grab; background-color: white; border: 1px solid #e2e8f0; padding: 8px 12px; border-radius: 0.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); width: 100%; font-size: 0.95rem; }
+
+        .page-section { display: none; animation: fadeIn 0.5s; }
+        .page-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .sticky-pool { position: sticky; top: 1rem; z-index: 40; }
+
+        .feedback-editor { min-height: 120px; border: 2px solid #e5e7eb; padding: 1rem; border-radius: 0.5rem; background-color: #fff; outline: none; transition: border-color 0.2s; line-height: 1.6;}
+        .feedback-editor:focus { border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
+        .toolbar button { transition: all 0.2s; }
+        .toolbar button:hover { background-color: #e2e8f0; }
+
+        #submit-banner { position: fixed; top: 0; left: 0; right: 0; z-index: 50; transform: translateY(-100%); transition: transform 0.3s ease-in-out; }
+        #submit-banner.show { transform: translateY(0); }
+        #loader-overlay { position: fixed; inset: 0; z-index: 999; background: rgba(255,255,255,0.8); display: none; align-items: center; justify-content: center; flex-direction: column; }
+    </style>
+</head>
+<body class="pb-24 relative">
+
+    <div id="custom-modal" class="fixed inset-0 z-[200] hidden bg-gray-900 bg-opacity-60 flex items-center justify-center transition-opacity duration-300 opacity-0">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4 text-center transform scale-95 transition-transform duration-300" id="modal-content">
+            <div id="modal-icon" class="text-5xl mb-4"></div>
+            <h3 id="modal-title" class="text-xl font-bold text-gray-800 mb-2"></h3>
+            <p id="modal-message" class="text-sm text-gray-600 mb-8 leading-relaxed"></p>
+            <div class="flex justify-center space-x-3 w-full" id="modal-buttons">
+                <button id="modal-cancel" class="hidden flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition">Hủy</button>
+                <button id="modal-confirm" class="flex-1 px-4 py-2.5 bg-emerald-500 text-white rounded-xl font-bold hover:bg-emerald-600 shadow-md shadow-emerald-200 transition">Đồng ý</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="loader-overlay">
+        <i class="fas fa-spinner fa-spin text-4xl text-emerald-500 mb-4"></i>
+        <p class="text-gray-700 font-semibold animate-pulse" id="loader-text">Đang kết nối hệ thống...</p>
+    </div>
+
+    <div id="floating-note-tooltip" class="hidden absolute z-[100] bg-white rounded-xl shadow-xl border border-blue-200 p-4 max-w-sm transition-opacity duration-200 pointer-events-auto">
+        <div class="flex items-center space-x-2 mb-2 border-b border-blue-100 pb-2">
+            <i class="fas fa-comment-dots text-blue-500 text-lg"></i>
+            <span class="text-sm font-bold text-blue-800">Giáo viên ghi chú</span>
+        </div>
+        <p id="floating-note-content" class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed"></p>
+        <div id="tooltip-arrow" class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-white border-b border-r border-blue-200 rotate-45"></div>
+    </div>
+
+    <div id="submit-banner" class="bg-emerald-600 text-white shadow-lg">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex flex-col md:flex-row items-center justify-between gap-3">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-check-circle text-2xl" id="banner-icon"></i>
+                <div>
+                    <h3 class="font-bold text-lg leading-tight" id="banner-title">Nộp bài thành công!</h3>
+                    <p class="text-sm text-emerald-100" id="banner-subtitle">Điểm trắc nghiệm (Tự động): <span id="banner-score" class="font-bold text-white"></span></p>
+                </div>
+            </div>
+            <div class="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2 w-full md:w-auto">
+                <input type="text" id="share-link" readonly class="text-sm text-gray-800 bg-white px-2 py-1.5 rounded w-full md:w-72 outline-none font-mono">
+                <button onclick="copyLink()" class="bg-white text-emerald-700 hover:bg-emerald-50 px-4 py-1.5 rounded font-semibold transition w-full md:w-auto flex items-center justify-center space-x-1" id="copy-btn">
+                    <i class="fas fa-copy"></i> <span>Copy Link</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <div id="main-header" class="bg-white rounded-2xl shadow-sm border border-emerald-100 p-6 mb-8 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-2 h-full bg-emerald-500"></div>
+            <div class="flex items-center space-x-4">
+                <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100">
+                    <i class="fas fa-leaf text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Preparation Quiz: Urban Environmental Issues</h1>
+                    <p class="text-gray-500 text-sm mt-1">Hoàn thành bài tập để xây dựng nền tảng từ vựng và tư duy xã hội.</p>
+                </div>
+            </div>
+            <div class="w-full md:w-auto" id="name-input-section">
+                <input type="text" id="student-name" placeholder="Nhập Họ và Tên của bạn..." class="w-full md:w-72 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none font-semibold text-gray-800 bg-gray-50 placeholder-gray-400">
+            </div>
+        </div>
+
+        <div id="teacher-info-panel" class="hidden mb-8 space-y-4">
+            <div class="p-6 bg-blue-50 rounded-xl border border-blue-200 shadow-sm text-center">
+                <h2 class="text-lg font-medium text-blue-900">Bài làm của học sinh: <br> <span id="display-student-name" class="text-2xl font-bold text-blue-700 uppercase mt-1 inline-block"></span></h2>
+            </div>
+            <div class="bg-yellow-50 text-yellow-800 p-4 rounded-lg text-sm border border-yellow-200 flex items-start gap-3">
+                <i class="fas fa-chalkboard-teacher text-lg mt-0.5"></i>
+                <div>
+                    <strong>CHẾ ĐỘ GIÁO VIÊN CHẤM BÀI (FEEDBACK MODE)</strong><br>
+                    Các câu khách quan đã được chấm điểm tự động. Tại <b>Phần 3 (Tự luận)</b>, bôi đen văn bản của học sinh và sử dụng thanh công cụ để chỉnh sửa hoặc thêm ghi chú.
+                </div>
+            </div>
+        </div>
+
+        <form id="quiz-form">
+            <div id="page-1" class="page-section active space-y-8">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 md:p-8">
+                    <div class="flex justify-between items-end border-b border-gray-100 pb-4 mb-6">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold mr-3">P1</div>
+                            <h2 class="text-xl font-bold text-gray-800">Multiple Choice & Matching</h2>
+                        </div>
+                        <span class="text-sm text-gray-500 font-medium">10 Câu hỏi</span>
+                    </div>
+
+                    <p class="text-gray-600 mb-6 text-sm italic"><i class="fas fa-info-circle text-emerald-500 mr-1"></i> Chọn đáp án Tiếng Anh tương ứng với ngữ cảnh được đưa ra bằng Tiếng Việt.</p>
+
+                    <div class="space-y-6 mb-10" id="mcq-container">
+                        <div class="mcq-question bg-gray-50 p-4 rounded-lg border border-gray-200" data-ans="A">
+                            <p class="font-semibold text-gray-800 mb-3">1. Nước bị ô nhiễm có thể gây ra dịch tả hoặc thương hàn. Thuật ngữ chung để chỉ "các bệnh lây truyền qua đường nước" là gì?</p>
+                            <div class="space-y-2 pl-2">
+                                <label class="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-white transition"><input type="radio" name="p1_q1" value="A" class="form-radio text-emerald-500 w-4 h-4"> <span class="text-sm font-medium">A. Waterborne diseases</span></label>
+                                <label class="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-white transition"><input type="radio" name="p1_q1" value="B" class="form-radio text-emerald-500 w-4 h-4"> <span class="text-sm font-medium">B. Respiratory diseases</span></label>
+                                <label class="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-white transition"><input type="radio" name="p1_q1" value="C" class="form-radio text-emerald-500 w-4 h-4"> <span class="text-sm font-medium">C. Cardiovascular diseases</span></label>
+                            </div>
+                        </div>
+                        <div class="mcq-question bg-gray-50 p-4 rounded-lg border border-gray-200" data-ans="C">
+                            <p class="font-semibold text-gray-800 mb-3">2. Việc tàu chở dầu bị chìm thường dẫn đến thảm họa sinh thái nghiêm trọng trên biển. Cụm từ nào chỉ "sự cố tràn dầu"?</p>
+                            <div class="space-y-2 pl-2">
+                                <label class="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-white transition"><input type="radio" name="p1_q2" value="A" class="form-radio text-emerald-500 w-4 h-4"> <span class="text-sm font-medium">A. Ocean evaporation</span></label>
+                                <label class="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-white transition"><input type="radio" name="p1_q2" value="B" class="form-radio text-emerald-500 w-4 h-4"> <span class="text-sm font-medium">B. Offshore drilling</span></label>
+                                <label class="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-white transition"><input type="radio" name="p1_q2" value="C" class="form-radio text-emerald-500 w-4 h-4"> <span class="text-sm font-medium">C. Accidental oil spills</span></label>
+                            </div>
+                        </div>
+                        <div class="mcq-question bg-gray-50 p-4 rounded-lg border border-gray-200" data-ans="B">
+                            <p class="font-semibold text-gray-800 mb-3">3. Để cải thiện chất lượng nước sông, chính quyền cần kiểm soát nghiêm ngặt "việc xả nước thải" từ các khu công nghiệp. Cụm từ tiếng Anh là gì?</p>
+                            <div class="space-y-2 pl-2">
+                                <label class="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-white transition"><input type="radio" name="p1_q3" value="A" class="form-radio text-emerald-500 w-4 h-4"> <span class="text-sm font-medium">A. Solid waste disposal</span></label>
+                                <label class="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-white transition"><input type="radio" name="p1_q3" value="B" class="form-radio text-emerald-500 w-4 h-4"> <span class="text-sm font-medium">B. Wastewater discharge</span></label>
+                                <label class="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-white transition"><input type="radio" name="p1_q3" value="C" class="form-radio text-emerald-500 w-4 h-4"> <span class="text-sm font-medium">C. Resource overconsumption</span></label>
+                            </div>
+                        </div>
+                        <div class="mcq-question bg-gray-50 p-4 rounded-lg border border-gray-200" data-ans="B">
+                            <p class="font-semibold text-gray-800 mb-3">4. Không khí ô nhiễm chứa nhiều hạt bụi mịn có thể gây hen suyễn hoặc ung thư phổi. Nhóm này được gọi chung là "các bệnh về đường hô hấp".</p>
+                            <div class="space-y-2 pl-2">
+                                <label class="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-white transition"><input type="radio" name="p1_q4" value="A" class="form-radio text-emerald-500 w-4 h-4"> <span class="text-sm font-medium">A. Digestive disorders</span></label>
+                                <label class="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-white transition"><input type="radio" name="p1_q4" value="B" class="form-radio text-emerald-500 w-4 h-4"> <span class="text-sm font-medium">B. Respiratory diseases</span></label>
+                                <label class="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-white transition"><input type="radio" name="p1_q4" value="C" class="form-radio text-emerald-500 w-4 h-4"> <span class="text-sm font-medium">C. Mental health conditions</span></label>
+                            </div>
+                        </div>
+                        <div class="mcq-question bg-gray-50 p-4 rounded-lg border border-gray-200" data-ans="A">
+                            <p class="font-semibold text-gray-800 mb-3">5. Khí thải công nghiệp khi phản ứng với ánh sáng và độ ẩm sẽ tạo ra "khói bụi mù và mưa axit", tàn phá hệ sinh thái mạnh mẽ.</p>
+                            <div class="space-y-2 pl-2">
+                                <label class="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-white transition"><input type="radio" name="p1_q5" value="A" class="form-radio text-emerald-500 w-4 h-4"> <span class="text-sm font-medium">A. Smog and acid rain</span></label>
+                                <label class="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-white transition"><input type="radio" name="p1_q5" value="B" class="form-radio text-emerald-500 w-4 h-4"> <span class="text-sm font-medium">B. Natural habitats</span></label>
+                                <label class="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-white transition"><input type="radio" name="p1_q5" value="C" class="form-radio text-emerald-500 w-4 h-4"> <span class="text-sm font-medium">C. Extreme weather events</span></label>
+                            </div>
+                        </div>
+                        <div class="mcq-question bg-gray-50 p-4 rounded-lg border border-gray-200" data-ans="C">
+                            <p class="font-semibold text-gray-800 mb-3">6. Nạn phá rừng làm giảm khả năng hấp thụ CO2, dẫn đến việc trái đất nóng lên do "hiệu ứng nhà kính" bị trầm trọng hóa.</p>
+                            <div class="space-y-2 pl-2">
+                                <label class="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-white transition"><input type="radio" name="p1_q6" value="A" class="form-radio text-emerald-500 w-4 h-4"> <span class="text-sm font-medium">A. Carbon footprint</span></label>
+                                <label class="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-white transition"><input type="radio" name="p1_q6" value="B" class="form-radio text-emerald-500 w-4 h-4"> <span class="text-sm font-medium">B. Urban expansion</span></label>
+                                <label class="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-white transition"><input type="radio" name="p1_q6" value="C" class="form-radio text-emerald-500 w-4 h-4"> <span class="text-sm font-medium">C. Greenhouse effect</span></label>
+                            </div>
+                        </div>
+                        <div class="mcq-question bg-gray-50 p-4 rounded-lg border border-gray-200" data-ans="A">
+                            <p class="font-semibold text-gray-800 mb-3">7. Khuyến khích sử dụng xe điện là một cách tốt để giảm "sự phụ thuộc vào nhiên liệu hóa thạch" như than đá và dầu mỏ.</p>
+                            <div class="space-y-2 pl-2">
+                                <label class="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-white transition"><input type="radio" name="p1_q7" value="A" class="form-radio text-emerald-500 w-4 h-4"> <span class="text-sm font-medium">A. Dependence on fossil fuels</span></label>
+                                <label class="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-white transition"><input type="radio" name="p1_q7" value="B" class="form-radio text-emerald-500 w-4 h-4"> <span class="text-sm font-medium">B. Waste combustion</span></label>
+                                <label class="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-white transition"><input type="radio" name="p1_q7" value="C" class="form-radio text-emerald-500 w-4 h-4"> <span class="text-sm font-medium">C. Rapid population growth</span></label>
+                            </div>
+                        </div>
+                        <div class="mcq-question bg-gray-50 p-4 rounded-lg border border-gray-200" data-ans="B">
+                            <p class="font-semibold text-gray-800 mb-3">8. Dân số đô thị đông đúc thường kéo theo chất lượng cuộc sống giảm sút do hiện tượng "tắc nghẽn giao thông".</p>
+                            <div class="space-y-2 pl-2">
+                                <label class="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-white transition"><input type="radio" name="p1_q8" value="A" class="form-radio text-emerald-500 w-4 h-4"> <span class="text-sm font-medium">A. Public awareness</span></label>
+                                <label class="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-white transition"><input type="radio" name="p1_q8" value="B" class="form-radio text-emerald-500 w-4 h-4"> <span class="text-sm font-medium">B. Traffic congestion</span></label>
+                                <label class="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-white transition"><input type="radio" name="p1_q8" value="C" class="form-radio text-emerald-500 w-4 h-4"> <span class="text-sm font-medium">C. Competitive job market</span></label>
+                            </div>
+                        </div>
+                        <div class="mcq-question bg-gray-50 p-4 rounded-lg border border-gray-200" data-ans="C">
+                            <p class="font-semibold text-gray-800 mb-3">9. Sự gia tăng dân số làm tăng nhu cầu khai thác, dễ dẫn đến "sự cạn kiệt tài nguyên" thiên nhiên (như nước ngọt, khoáng sản).</p>
+                            <div class="space-y-2 pl-2">
+                                <label class="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-white transition"><input type="radio" name="p1_q9" value="A" class="form-radio text-emerald-500 w-4 h-4"> <span class="text-sm font-medium">A. Biodiversity loss</span></label>
+                                <label class="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-white transition"><input type="radio" name="p1_q9" value="B" class="form-radio text-emerald-500 w-4 h-4"> <span class="text-sm font-medium">B. Emission standards</span></label>
+                                <label class="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-white transition"><input type="radio" name="p1_q9" value="C" class="form-radio text-emerald-500 w-4 h-4"> <span class="text-sm font-medium">C. Resource depletion</span></label>
+                            </div>
+                        </div>
+                        <div class="mcq-question bg-gray-50 p-4 rounded-lg border border-gray-200" data-ans="A">
+                            <p class="font-semibold text-gray-800 mb-3">10. "Quy hoạch đô thị bền vững" (đảm bảo không gian xanh và dịch vụ công) là giải pháp tối ưu cho tình trạng quá tải dân số.</p>
+                            <div class="space-y-2 pl-2">
+                                <label class="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-white transition"><input type="radio" name="p1_q10" value="A" class="form-radio text-emerald-500 w-4 h-4"> <span class="text-sm font-medium">A. Sustainable urban planning</span></label>
+                                <label class="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-white transition"><input type="radio" name="p1_q10" value="B" class="form-radio text-emerald-500 w-4 h-4"> <span class="text-sm font-medium">B. Advanced filtration</span></label>
+                                <label class="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-white transition"><input type="radio" name="p1_q10" value="C" class="form-radio text-emerald-500 w-4 h-4"> <span class="text-sm font-medium">C. Heavy fines on violators</span></label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h4 class="font-bold text-gray-700 border-b pb-2 mb-4">Ghép nối từ vựng (Matching)</h4>
+                    <p class="text-xs text-gray-500 mb-4">Kéo các từ Tiếng Anh ở cột bên phải thả vào ô trống tương ứng với định nghĩa Tiếng Anh. (Có thể xem gợi ý Tiếng Việt).</p>
+                    
+                    <div class="flex flex-col md:flex-row gap-6">
+                        <div class="space-y-3 flex-1" id="match-container">
+                            <div class="flex items-center gap-3">
+                                <div class="bg-blue-50 p-3 rounded border border-blue-100 flex-1 text-sm text-blue-900 leading-snug">
+                                    <strong>1.</strong> The original environment where animals and plants live.
+                                    <div class="mt-1">
+                                        <input type="checkbox" id="trans1" class="translation-toggle hidden">
+                                        <label for="trans1" class="text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 px-2 py-0.5 rounded cursor-pointer transition">Dịch</label>
+                                        <div class="vietnamese-translation">Môi trường sống tự nhiên.</div>
+                                    </div>
+                                </div>
+                                <div class="match-drop-zone w-48 flex-shrink-0" ondrop="dropMatch(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="m1" data-pool="match"></div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="bg-blue-50 p-3 rounded border border-blue-100 flex-1 text-sm text-blue-900 leading-snug">
+                                    <strong>2.</strong> Modern methods used to purify and separate toxic substances from the air/water.
+                                    <div class="mt-1">
+                                        <input type="checkbox" id="trans2" class="translation-toggle hidden">
+                                        <label for="trans2" class="text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 px-2 py-0.5 rounded cursor-pointer transition">Dịch</label>
+                                        <div class="vietnamese-translation">Phương pháp lọc tiên tiến.</div>
+                                    </div>
+                                </div>
+                                <div class="match-drop-zone w-48 flex-shrink-0" ondrop="dropMatch(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="m2" data-pool="match"></div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="bg-blue-50 p-3 rounded border border-blue-100 flex-1 text-sm text-blue-900 leading-snug">
+                                    <strong>3.</strong> Facilities that burn garbage to produce electricity safely.
+                                    <div class="mt-1">
+                                        <input type="checkbox" id="trans3" class="translation-toggle hidden">
+                                        <label for="trans3" class="text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 px-2 py-0.5 rounded cursor-pointer transition">Dịch</label>
+                                        <div class="vietnamese-translation">Các nhà máy đốt rác phát điện.</div>
+                                    </div>
+                                </div>
+                                <div class="match-drop-zone w-48 flex-shrink-0" ondrop="dropMatch(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="m3" data-pool="match"></div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="bg-blue-50 p-3 rounded border border-blue-100 flex-1 text-sm text-blue-900 leading-snug">
+                                    <strong>4.</strong> Teaching programs about family planning and physical wellbeing.
+                                    <div class="mt-1">
+                                        <input type="checkbox" id="trans4" class="translation-toggle hidden">
+                                        <label for="trans4" class="text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 px-2 py-0.5 rounded cursor-pointer transition">Dịch</label>
+                                        <div class="vietnamese-translation">Giáo dục sức khỏe sinh sản.</div>
+                                    </div>
+                                </div>
+                                <div class="match-drop-zone w-48 flex-shrink-0" ondrop="dropMatch(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="m4" data-pool="match"></div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="bg-blue-50 p-3 rounded border border-blue-100 flex-1 text-sm text-blue-900 leading-snug">
+                                    <strong>5.</strong> Official rules created to protect nature from human activities.
+                                    <div class="mt-1">
+                                        <input type="checkbox" id="trans5" class="translation-toggle hidden">
+                                        <label for="trans5" class="text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 px-2 py-0.5 rounded cursor-pointer transition">Dịch</label>
+                                        <div class="vietnamese-translation">Các quy định môi trường.</div>
+                                    </div>
+                                </div>
+                                <div class="match-drop-zone w-48 flex-shrink-0" ondrop="dropMatch(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="m5" data-pool="match"></div>
+                            </div>
+                        </div>
+
+                        <div class="w-full md:w-64 bg-gray-50 border border-gray-200 rounded-lg p-4 sticky-pool shadow-sm h-fit">
+                            <h5 class="text-sm font-bold text-gray-600 mb-3 text-center border-b pb-2">WORD POOL</h5>
+                            <div class="flex flex-col gap-2" id="pool-match" data-pool="match">
+                                <div class="match-item text-center text-emerald-700 font-medium" draggable="true" ondragstart="drag(event)" id="drag-m3" data-val="m3">waste-to-energy plants</div>
+                                <div class="match-item text-center text-emerald-700 font-medium" draggable="true" ondragstart="drag(event)" id="drag-m1" data-val="m1">natural habitats</div>
+                                <div class="match-item text-center text-emerald-700 font-medium" draggable="true" ondragstart="drag(event)" id="drag-m5" data-val="m5">environmental regulations</div>
+                                <div class="match-item text-center text-emerald-700 font-medium" draggable="true" ondragstart="drag(event)" id="drag-m2" data-val="m2">advanced filtration</div>
+                                <div class="match-item text-center text-emerald-700 font-medium" draggable="true" ondragstart="drag(event)" id="drag-m4" data-val="m4">reproductive health education</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 text-right">
+                        <button type="button" onclick="nextPage('page-1', 'page-2')" class="bg-gray-800 hover:bg-gray-900 text-white font-semibold py-2 px-6 rounded-lg transition shadow">Tiếp tục: Phần 2 <i class="fas fa-arrow-right ml-2"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="page-2" class="page-section space-y-8">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 md:p-8">
+                    <div class="flex justify-between items-end border-b border-gray-100 pb-4 mb-6">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold mr-3">P2</div>
+                            <h2 class="text-xl font-bold text-gray-800">Gap-fill & Categorize</h2>
+                        </div>
+                        <span class="text-sm text-gray-500 font-medium">10 Câu đơn & 3 Đoạn văn</span>
+                    </div>
+                    
+                    <p class="text-sm text-gray-600 mb-6 border-l-4 border-emerald-400 pl-3">
+                        <strong>Hướng dẫn:</strong> Kéo các từ (Vocab / Linking words) thả vào chỗ trống tương ứng. Bạn hãy cuộn trang cẩn thận để bảng từ khóa di chuyển theo. Sau khi hoàn thành câu đơn, chọn loại câu miêu tả <strong>Reason (Nguyên nhân/Giải pháp thực hiện)</strong> hay <strong>Impact (Tác động/Kết quả)</strong>.
+                    </p>
+
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 bg-gray-100 px-3 py-1 inline-block rounded">A. Single Sentences</h3>
+                    <div class="flex flex-col md:flex-row gap-6 relative">
+                        
+                        <div class="flex-1 space-y-5 text-gray-800 leading-loose text-sm" id="gapfill-container">
+                            <div class="gapfill-row pb-3 border-b border-gray-100 flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+                                <div class="flex-1">1. Harmful chemicals from factories entering rivers can completely destroy <div class="droppable-area" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="freshwater_systems" data-pool="gapfill-a"></div>.</div>
+                                <select class="type-select w-36 border-gray-300 rounded p-1.5 border flex-shrink-0" data-expected="Impact"><option value="">-- Phân loại --</option><option value="Reason">Reason</option><option value="Impact">Impact</option></select>
+                            </div>
+                            <div class="gapfill-row pb-3 border-b border-gray-100 flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+                                <div class="flex-1">2. Urban expansion into forests often leads to severe <div class="droppable-area" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="biodiversity_loss" data-pool="gapfill-a"></div> as animals lose their homes.</div>
+                                <select class="type-select w-36 border-gray-300 rounded p-1.5 border flex-shrink-0" data-expected="Impact"><option value="">-- Phân loại --</option><option value="Reason">Reason</option><option value="Impact">Impact</option></select>
+                            </div>
+                            <div class="gapfill-row pb-3 border-b border-gray-100 flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+                                <div class="flex-1">3. Toxic microplastics can eventually enter <div class="droppable-area" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="the_food_chain" data-pool="gapfill-a"></div>, affecting fish and the humans who consume them.</div>
+                                <select class="type-select w-36 border-gray-300 rounded p-1.5 border flex-shrink-0" data-expected="Reason"><option value="">-- Phân loại --</option><option value="Reason">Reason</option><option value="Impact">Impact</option></select>
+                            </div>
+                            <div class="gapfill-row pb-3 border-b border-gray-100 flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+                                <div class="flex-1">4. The government must impose <div class="droppable-area" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="heavy_fines_on_violators" data-pool="gapfill-a"></div> to deter companies from illegally discharging waste.</div>
+                                <select class="type-select w-36 border-gray-300 rounded p-1.5 border flex-shrink-0" data-expected="Reason"><option value="">-- Phân loại --</option><option value="Reason">Reason</option><option value="Impact">Impact</option></select>
+                            </div>
+                            <div class="gapfill-row pb-3 border-b border-gray-100 flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+                                <div class="flex-1">5. The open burning of garbage releases smoke that will severely <div class="droppable-area" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="degrade_air_quality" data-pool="gapfill-a"></div> in the area.</div>
+                                <select class="type-select w-36 border-gray-300 rounded p-1.5 border flex-shrink-0" data-expected="Impact"><option value="">-- Phân loại --</option><option value="Reason">Reason</option><option value="Impact">Impact</option></select>
+                            </div>
+                            <div class="gapfill-row pb-3 border-b border-gray-100 flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+                                <div class="flex-1">6. Global warming triggers <div class="droppable-area" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="extreme_weather_events" data-pool="gapfill-a"></div> such as intense hurricanes and prolonged droughts.</div>
+                                <select class="type-select w-36 border-gray-300 rounded p-1.5 border flex-shrink-0" data-expected="Impact"><option value="">-- Phân loại --</option><option value="Reason">Reason</option><option value="Impact">Impact</option></select>
+                            </div>
+                            <div class="gapfill-row pb-3 border-b border-gray-100 flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+                                <div class="flex-1">7. Investing in <div class="droppable-area" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="large-scale_reforestation_programs" data-pool="gapfill-a"></div> is an effective way to remove carbon dioxide from the atmosphere.</div>
+                                <select class="type-select w-36 border-gray-300 rounded p-1.5 border flex-shrink-0" data-expected="Reason"><option value="">-- Phân loại --</option><option value="Reason">Reason</option><option value="Impact">Impact</option></select>
+                            </div>
+                            <div class="gapfill-row pb-3 border-b border-gray-100 flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+                                <div class="flex-1">8. Improved healthcare and longer lifespans contribute to <div class="droppable-area" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="rapid_population_growth" data-pool="gapfill-a"></div> in many developing nations.</div>
+                                <select class="type-select w-36 border-gray-300 rounded p-1.5 border flex-shrink-0" data-expected="Reason"><option value="">-- Phân loại --</option><option value="Reason">Reason</option><option value="Impact">Impact</option></select>
+                            </div>
+                            <div class="gapfill-row pb-3 border-b border-gray-100 flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+                                <div class="flex-1">9. A highly <div class="droppable-area" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="competitive_job_market" data-pool="gapfill-a"></div> leaves many young graduates struggling to find employment.</div>
+                                <select class="type-select w-36 border-gray-300 rounded p-1.5 border flex-shrink-0" data-expected="Reason"><option value="">-- Phân loại --</option><option value="Reason">Reason</option><option value="Impact">Impact</option></select>
+                            </div>
+                            <div class="gapfill-row flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+                                <div class="flex-1">10. Meeting the demands of billions of people results in alarming <div class="droppable-area" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="resource_overconsumption" data-pool="gapfill-a"></div>.</div>
+                                <select class="type-select w-36 border-gray-300 rounded p-1.5 border flex-shrink-0" data-expected="Impact"><option value="">-- Phân loại --</option><option value="Reason">Reason</option><option value="Impact">Impact</option></select>
+                            </div>
+                        </div>
+
+                        <div class="w-full md:w-56 lg:w-64 flex-shrink-0">
+                            <div class="bg-teal-50 p-4 rounded-lg border border-teal-200 sticky-pool shadow-sm" id="pool-vocab-a">
+                                <h5 class="text-xs font-bold text-teal-800 mb-3 uppercase border-b border-teal-200 pb-2">Vocabulary (Part 2A)</h5>
+                                <div class="flex flex-wrap gap-2" id="wrap-vocab-a" data-pool="gapfill-a">
+                                    <div class="draggable-item" draggable="true" ondragstart="drag(event)" id="v1" data-val="freshwater_systems" data-pool="gapfill-a">freshwater systems</div>
+                                    <div class="draggable-item" draggable="true" ondragstart="drag(event)" id="v2" data-val="biodiversity_loss" data-pool="gapfill-a">biodiversity loss</div>
+                                    <div class="draggable-item" draggable="true" ondragstart="drag(event)" id="v3" data-val="the_food_chain" data-pool="gapfill-a">the food chain</div>
+                                    <div class="draggable-item" draggable="true" ondragstart="drag(event)" id="v4" data-val="heavy_fines_on_violators" data-pool="gapfill-a">heavy fines on violators</div>
+                                    <div class="draggable-item" draggable="true" ondragstart="drag(event)" id="v5" data-val="degrade_air_quality" data-pool="gapfill-a">degrade air quality</div>
+                                    <div class="draggable-item" draggable="true" ondragstart="drag(event)" id="v6" data-val="extreme_weather_events" data-pool="gapfill-a">extreme weather events</div>
+                                    <div class="draggable-item" draggable="true" ondragstart="drag(event)" id="v7" data-val="large-scale_reforestation_programs" data-pool="gapfill-a">large-scale reforestation programs</div>
+                                    <div class="draggable-item" draggable="true" ondragstart="drag(event)" id="v8" data-val="rapid_population_growth" data-pool="gapfill-a">rapid population growth</div>
+                                    <div class="draggable-item" draggable="true" ondragstart="drag(event)" id="v9" data-val="competitive_job_market" data-pool="gapfill-a">competitive job market</div>
+                                    <div class="draggable-item" draggable="true" ondragstart="drag(event)" id="v10" data-val="resource_overconsumption" data-pool="gapfill-a">resource overconsumption</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 mt-8 bg-gray-100 px-3 py-1 inline-block rounded">B. Paragraphs Building</h3>
+                    
+                    <div class="flex flex-col md:flex-row gap-6 relative">
+                        <div class="flex-1 space-y-6" id="para-container">
+                            
+                            <div class="p-5 bg-white border border-gray-200 shadow-sm rounded-lg text-sm leading-relaxed">
+                                <p class="mb-3 font-bold text-blue-800 border-b pb-1">Paragraph 1: Managing Water Pollution</p>
+                                <p>
+                                    <div class="droppable-area linking-word mx-1" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="First_and_foremost" data-pool="gapfill-b"></div>, discharging <div class="droppable-area mx-1" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="untreated_industrial_wastes" data-pool="gapfill-b"></div> is a primary cause of water contamination. Therefore, authorities must <div class="droppable-area mx-1" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="conduct_regular_inspections" data-pool="gapfill-b"></div> to detect illegal disposal activities at an early stage. <div class="droppable-area linking-word mx-1" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="Consequently" data-pool="gapfill-b"></div>, rivers and lakes will be protected from toxic chemicals.
+                                </p>
+                            </div>
+
+                            <div class="p-5 bg-white border border-gray-200 shadow-sm rounded-lg text-sm leading-relaxed">
+                                <p class="mb-3 font-bold text-blue-800 border-b pb-1">Paragraph 2: Addressing Air Pollution</p>
+                                <p>
+                                    <div class="droppable-area linking-word mx-1" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="Primarily" data-pool="gapfill-b"></div>, the rising number of private vehicles releases huge amounts of <div class="droppable-area mx-1" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="exhaust_fumes" data-pool="gapfill-b"></div> into the atmosphere. To combat this, we should combine electric vehicle usage with planting trees to increase <div class="droppable-area mx-1" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="carbon_absorption" data-pool="gapfill-b"></div>. <div class="droppable-area linking-word mx-1" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="As_a_result" data-pool="gapfill-b"></div>, the air quality in urban areas will significantly improve.
+                                </p>
+                            </div>
+
+                            <div class="p-5 bg-white border border-gray-200 shadow-sm rounded-lg text-sm leading-relaxed">
+                                <p class="mb-3 font-bold text-blue-800 border-b pb-1">Paragraph 3: The Threat of Overpopulation</p>
+                                <p>
+                                    An overcrowded city places immense pressure on infrastructure. <div class="droppable-area linking-word mx-1" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="Furthermore" data-pool="gapfill-b"></div>, it intensifies competition for jobs, causing <div class="droppable-area mx-1" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="rising_unemployment_rates" data-pool="gapfill-b"></div> and poverty. <div class="droppable-area linking-word mx-1" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" data-expected="Ultimately" data-pool="gapfill-b"></div>, this social instability often leads to a higher rate of crime such as theft.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="w-full md:w-56 lg:w-64 flex-shrink-0">
+                            <div class="bg-blue-50 p-4 rounded-lg border border-blue-200 sticky-pool shadow-sm" id="pool-vocab-b">
+                                <h5 class="text-xs font-bold text-blue-800 mb-3 uppercase border-b border-blue-200 pb-2">Vocab & Links (Part 2B)</h5>
+                                <div class="flex flex-wrap gap-2" id="wrap-vocab-b" data-pool="gapfill-b">
+                                    <!-- Vocab -->
+                                    <div class="draggable-item" draggable="true" ondragstart="drag(event)" id="vb1" data-val="untreated_industrial_wastes" data-pool="gapfill-b">untreated industrial wastes</div>
+                                    <div class="draggable-item" draggable="true" ondragstart="drag(event)" id="vb2" data-val="conduct_regular_inspections" data-pool="gapfill-b">conduct regular inspections</div>
+                                    <div class="draggable-item" draggable="true" ondragstart="drag(event)" id="vb3" data-val="exhaust_fumes" data-pool="gapfill-b">exhaust fumes</div>
+                                    <div class="draggable-item" draggable="true" ondragstart="drag(event)" id="vb4" data-val="carbon_absorption" data-pool="gapfill-b">carbon absorption</div>
+                                    <div class="draggable-item" draggable="true" ondragstart="drag(event)" id="vb5" data-val="rising_unemployment_rates" data-pool="gapfill-b">rising unemployment rates</div>
+                                    
+                                    <!-- Linking words -->
+                                    <div class="draggable-item linking-word" draggable="true" ondragstart="drag(event)" id="l1" data-val="First_and_foremost" data-pool="gapfill-b">First and foremost</div>
+                                    <div class="draggable-item linking-word" draggable="true" ondragstart="drag(event)" id="l2" data-val="Consequently" data-pool="gapfill-b">Consequently</div>
+                                    <div class="draggable-item linking-word" draggable="true" ondragstart="drag(event)" id="l3" data-val="Primarily" data-pool="gapfill-b">Primarily</div>
+                                    <div class="draggable-item linking-word" draggable="true" ondragstart="drag(event)" id="l4" data-val="As_a_result" data-pool="gapfill-b">As a result</div>
+                                    <div class="draggable-item linking-word" draggable="true" ondragstart="drag(event)" id="l5" data-val="Furthermore" data-pool="gapfill-b">Furthermore</div>
+                                    <div class="draggable-item linking-word" draggable="true" ondragstart="drag(event)" id="l6" data-val="Ultimately" data-pool="gapfill-b">Ultimately</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 flex justify-between">
+                        <button type="button" onclick="nextPage('page-2', 'page-1')" class="text-gray-500 hover:text-gray-800 font-semibold py-2 px-4 transition"><i class="fas fa-arrow-left mr-2"></i> Quay lại</button>
+                        <button type="button" onclick="nextPage('page-2', 'page-3')" class="bg-gray-800 hover:bg-gray-900 text-white font-semibold py-2 px-6 rounded-lg transition shadow">Tiếp tục: Phần 3 <i class="fas fa-arrow-right ml-2"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="page-3" class="page-section space-y-8">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 md:p-8">
+                    <div class="flex justify-between items-end border-b border-gray-100 pb-4 mb-6">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold mr-3">P3.1</div>
+                            <h2 class="text-xl font-bold text-gray-800">Socratic Questions: Water Pollution</h2>
+                        </div>
+                        <span class="text-sm text-gray-500 font-medium">Phần 1/4</span>
+                    </div>
+
+                    <p class="text-sm text-gray-600 mb-8 border-l-4 border-emerald-400 pl-3">
+                        <strong>Hướng dẫn:</strong> Mỗi ý tưởng trong Mindmap đã được tách riêng. Trả lời chi tiết vào từng ô trống để tạo thành lập luận nguyên nhân - kết quả hoàn chỉnh. Sử dụng Vocab Hint để bài viết chuyên nghiệp hơn.
+                    </p>
+
+                    <div class="space-y-6">
+                        <!-- Q1 -->
+                        <div class="mb-6 pl-4 border-l-2 border-red-400">
+                            <h4 class="font-bold text-gray-800 mb-2">1. Industrial Wastes (Cause and Impact)</h4>
+                            <p class="text-sm text-gray-700 mb-3 leading-relaxed"><strong>Câu hỏi dẫn dắt:</strong> Nước thải công nghiệp nếu không được xử lý đúng cách sẽ làm ô nhiễm hệ thống nào? Điều này dẫn đến tình trạng ô nhiễm nguồn nước, từ đó lây lan các loại bệnh gì cho sinh vật và con người?</p>
+                            <div class="mb-3">
+                                <input type="checkbox" id="hint-p3-1" class="hint-toggle hidden">
+                                <label for="hint-p3-1" class="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded cursor-pointer hover:bg-emerald-100 transition"><i class="fas fa-lightbulb mr-1"></i> Hiện Vocab Hint</label>
+                                <div class="hint-content">
+                                    <ul class="list-disc pl-4 space-y-1">
+                                        <li><strong>untreated industrial wastes</strong> (n): nước thải công nghiệp chưa qua xử lý</li>
+                                        <li><strong>freshwater systems</strong> (n): các hệ thống nước ngọt</li>
+                                        <li><strong>waterborne diseases</strong> (n): các bệnh lây truyền qua đường nước</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div id="toolbar_editor_1" class="hidden toolbar mb-2 bg-gray-100 border border-gray-300 rounded p-1 flex space-x-1 w-fit">
+                                <button type="button" onclick="formatDoc('bold')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 font-bold hover:bg-gray-200"><i class="fas fa-bold"></i></button>
+                                <button type="button" onclick="formatDoc('strikeThrough')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 hover:bg-gray-200"><i class="fas fa-strikethrough"></i></button>
+                                <button type="button" onclick="formatDoc('foreColor', 'red')" class="w-8 h-8 rounded flex items-center justify-center text-red-600 hover:bg-red-50"><i class="fas fa-palette"></i></button>
+                                <button type="button" onclick="formatDoc('hiliteColor', 'yellow')" class="w-8 h-8 rounded flex items-center justify-center text-yellow-600 hover:bg-yellow-50"><i class="fas fa-highlighter"></i></button>
+                                <div class="w-px h-5 bg-gray-300 my-auto mx-1"></div>
+                                <button type="button" onclick="addTeacherNote()" class="px-2 h-8 rounded flex items-center justify-center text-blue-600 text-sm font-semibold hover:bg-blue-50"><i class="fas fa-comment-medical mr-1"></i> Note</button>
+                            </div>
+                            <div id="editor_1" class="feedback-editor" contenteditable="true" placeholder="Viết câu trả lời của bạn vào đây..."></div>
+                        </div>
+
+                        <!-- Q2 -->
+                        <div class="mb-6 pl-4 border-l-2 border-red-400">
+                            <h4 class="font-bold text-gray-800 mb-2">2. Accidental Oil Spills (Cause and Impact)</h4>
+                            <p class="text-sm text-gray-700 mb-3 leading-relaxed"><strong>Câu hỏi dẫn dắt:</strong> Các sự cố tràn dầu trên đại dương sẽ tạo ra hiện tượng gì trên bề mặt nước? Lớp váng dầu này ngăn chặn ánh sáng mặt trời và oxy đến với các sinh vật biển, từ đó phá hủy cái gì và dẫn đến sự suy giảm nào?</p>
+                            <div class="mb-3">
+                                <input type="checkbox" id="hint-p3-2" class="hint-toggle hidden">
+                                <label for="hint-p3-2" class="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded cursor-pointer hover:bg-emerald-100 transition"><i class="fas fa-lightbulb mr-1"></i> Hiện Vocab Hint</label>
+                                <div class="hint-content">
+                                    <ul class="list-disc pl-4 space-y-1">
+                                        <li><strong>accidental oil spills</strong> (n): những sự cố tràn dầu</li>
+                                        <li><strong>forms a layer on the water surface</strong> (clause): tạo thành một lớp (màng) trên bề mặt nước</li>
+                                        <li><strong>natural habitats</strong> (n): môi trường sống tự nhiên</li>
+                                        <li><strong>biodiversity loss</strong> (n): sự mất đi đa dạng sinh học</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div id="toolbar_editor_2" class="hidden toolbar mb-2 bg-gray-100 border border-gray-300 rounded p-1 flex space-x-1 w-fit">
+                                <button type="button" onclick="formatDoc('bold')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 font-bold hover:bg-gray-200"><i class="fas fa-bold"></i></button>
+                                <button type="button" onclick="formatDoc('strikeThrough')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 hover:bg-gray-200"><i class="fas fa-strikethrough"></i></button>
+                                <button type="button" onclick="formatDoc('foreColor', 'red')" class="w-8 h-8 rounded flex items-center justify-center text-red-600 hover:bg-red-50"><i class="fas fa-palette"></i></button>
+                                <button type="button" onclick="formatDoc('hiliteColor', 'yellow')" class="w-8 h-8 rounded flex items-center justify-center text-yellow-600 hover:bg-yellow-50"><i class="fas fa-highlighter"></i></button>
+                                <div class="w-px h-5 bg-gray-300 my-auto mx-1"></div>
+                                <button type="button" onclick="addTeacherNote()" class="px-2 h-8 rounded flex items-center justify-center text-blue-600 text-sm font-semibold hover:bg-blue-50"><i class="fas fa-comment-medical mr-1"></i> Note</button>
+                            </div>
+                            <div id="editor_2" class="feedback-editor" contenteditable="true" placeholder="Viết câu trả lời của bạn vào đây..."></div>
+                        </div>
+
+                        <!-- Q3 -->
+                        <div class="mb-6 pl-4 border-l-2 border-red-400">
+                            <h4 class="font-bold text-gray-800 mb-2">3. Food Chain Contamination (Cause and Impact)</h4>
+                            <p class="text-sm text-gray-700 mb-3 leading-relaxed"><strong>Câu hỏi dẫn dắt:</strong> Khi nước ô nhiễm xâm nhập vào chuỗi thức ăn, các sinh vật biển sẽ tiêu thụ chất độc. Nếu con người ăn phải những hải sản này, điều này sẽ đặt ra rủi ro nghiêm trọng cho sức khỏe và ngành công nghiệp nào tại địa phương?</p>
+                            <div class="mb-3">
+                                <input type="checkbox" id="hint-p3-3" class="hint-toggle hidden">
+                                <label for="hint-p3-3" class="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded cursor-pointer hover:bg-emerald-100 transition"><i class="fas fa-lightbulb mr-1"></i> Hiện Vocab Hint</label>
+                                <div class="hint-content">
+                                    <ul class="list-disc pl-4 space-y-1">
+                                        <li><strong>the food chain</strong> (n): chuỗi thức ăn</li>
+                                        <li><strong>pose serious risks</strong> (v): đặt ra những rủi ro nghiêm trọng</li>
+                                        <li><strong>local fishing industry</strong> (n): ngành công nghiệp đánh bắt cá địa phương</li>
+                                        <li><strong>ingested by humans</strong> (clause): được con người ăn/hấp thụ vào cơ thể</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div id="toolbar_editor_3" class="hidden toolbar mb-2 bg-gray-100 border border-gray-300 rounded p-1 flex space-x-1 w-fit">
+                                <button type="button" onclick="formatDoc('bold')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 font-bold hover:bg-gray-200"><i class="fas fa-bold"></i></button>
+                                <button type="button" onclick="formatDoc('strikeThrough')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 hover:bg-gray-200"><i class="fas fa-strikethrough"></i></button>
+                                <button type="button" onclick="formatDoc('foreColor', 'red')" class="w-8 h-8 rounded flex items-center justify-center text-red-600 hover:bg-red-50"><i class="fas fa-palette"></i></button>
+                                <button type="button" onclick="formatDoc('hiliteColor', 'yellow')" class="w-8 h-8 rounded flex items-center justify-center text-yellow-600 hover:bg-yellow-50"><i class="fas fa-highlighter"></i></button>
+                                <div class="w-px h-5 bg-gray-300 my-auto mx-1"></div>
+                                <button type="button" onclick="addTeacherNote()" class="px-2 h-8 rounded flex items-center justify-center text-blue-600 text-sm font-semibold hover:bg-blue-50"><i class="fas fa-comment-medical mr-1"></i> Note</button>
+                            </div>
+                            <div id="editor_3" class="feedback-editor" contenteditable="true" placeholder="Viết câu trả lời của bạn vào đây..."></div>
+                        </div>
+
+                        <!-- Q4 -->
+                        <div class="mb-6 pl-4 border-l-2 border-green-400">
+                            <h4 class="font-bold text-gray-800 mb-2">4. Imposing Stricter Regulations (Solutions)</h4>
+                            <p class="text-sm text-gray-700 mb-3 leading-relaxed"><strong>Câu hỏi dẫn dắt:</strong> Để đảm bảo nước thải công nghiệp được xử lý đúng cách trước khi xả ra môi trường, chính phủ cần áp đặt điều gì lên việc xả thải và áp dụng hình phạt nào đối với những bên vi phạm?</p>
+                            <div class="mb-3">
+                                <input type="checkbox" id="hint-p3-4" class="hint-toggle hidden">
+                                <label for="hint-p3-4" class="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded cursor-pointer hover:bg-emerald-100 transition"><i class="fas fa-lightbulb mr-1"></i> Hiện Vocab Hint</label>
+                                <div class="hint-content">
+                                    <ul class="list-disc pl-4 space-y-1">
+                                        <li><strong>impose stricter regulations</strong> (v): áp đặt các quy định nghiêm ngặt hơn</li>
+                                        <li><strong>wastewater discharge</strong> (n): việc xả nước thải</li>
+                                        <li><strong>heavy fines on violators</strong> (n): tiền phạt nặng lên những người vi phạm</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div id="toolbar_editor_4" class="hidden toolbar mb-2 bg-gray-100 border border-gray-300 rounded p-1 flex space-x-1 w-fit">
+                                <button type="button" onclick="formatDoc('bold')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 font-bold hover:bg-gray-200"><i class="fas fa-bold"></i></button>
+                                <button type="button" onclick="formatDoc('strikeThrough')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 hover:bg-gray-200"><i class="fas fa-strikethrough"></i></button>
+                                <button type="button" onclick="formatDoc('foreColor', 'red')" class="w-8 h-8 rounded flex items-center justify-center text-red-600 hover:bg-red-50"><i class="fas fa-palette"></i></button>
+                                <button type="button" onclick="formatDoc('hiliteColor', 'yellow')" class="w-8 h-8 rounded flex items-center justify-center text-yellow-600 hover:bg-yellow-50"><i class="fas fa-highlighter"></i></button>
+                                <div class="w-px h-5 bg-gray-300 my-auto mx-1"></div>
+                                <button type="button" onclick="addTeacherNote()" class="px-2 h-8 rounded flex items-center justify-center text-blue-600 text-sm font-semibold hover:bg-blue-50"><i class="fas fa-comment-medical mr-1"></i> Note</button>
+                            </div>
+                            <div id="editor_4" class="feedback-editor" contenteditable="true" placeholder="Viết câu trả lời của bạn vào đây..."></div>
+                        </div>
+
+                        <!-- Q5 -->
+                        <div class="mb-6 pl-4 border-l-2 border-green-400">
+                            <h4 class="font-bold text-gray-800 mb-2">5. Modern Technologies (Solutions)</h4>
+                            <p class="text-sm text-gray-700 mb-3 leading-relaxed"><strong>Câu hỏi dẫn dắt:</strong> Để loại bỏ các hóa chất và độc tố gây hại, chúng ta cần đầu tư vào những cơ sở vật chất xử lý nào? Việc này sẽ giúp cải thiện yếu tố gì cho nguồn nước?</p>
+                            <div class="mb-3">
+                                <input type="checkbox" id="hint-p3-5" class="hint-toggle hidden">
+                                <label for="hint-p3-5" class="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded cursor-pointer hover:bg-emerald-100 transition"><i class="fas fa-lightbulb mr-1"></i> Hiện Vocab Hint</label>
+                                <div class="hint-content">
+                                    <ul class="list-disc pl-4 space-y-1">
+                                        <li><strong>wastewater treatment facilities</strong> (n): cơ sở vật chất xử lý nước thải</li>
+                                        <li><strong>harmful chemicals and toxins</strong> (n): những hóa chất và độc tố gây hại</li>
+                                        <li><strong>improve water quality</strong> (v): cải thiện chất lượng nước</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div id="toolbar_editor_5" class="hidden toolbar mb-2 bg-gray-100 border border-gray-300 rounded p-1 flex space-x-1 w-fit">
+                                <button type="button" onclick="formatDoc('bold')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 font-bold hover:bg-gray-200"><i class="fas fa-bold"></i></button>
+                                <button type="button" onclick="formatDoc('strikeThrough')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 hover:bg-gray-200"><i class="fas fa-strikethrough"></i></button>
+                                <button type="button" onclick="formatDoc('foreColor', 'red')" class="w-8 h-8 rounded flex items-center justify-center text-red-600 hover:bg-red-50"><i class="fas fa-palette"></i></button>
+                                <button type="button" onclick="formatDoc('hiliteColor', 'yellow')" class="w-8 h-8 rounded flex items-center justify-center text-yellow-600 hover:bg-yellow-50"><i class="fas fa-highlighter"></i></button>
+                                <div class="w-px h-5 bg-gray-300 my-auto mx-1"></div>
+                                <button type="button" onclick="addTeacherNote()" class="px-2 h-8 rounded flex items-center justify-center text-blue-600 text-sm font-semibold hover:bg-blue-50"><i class="fas fa-comment-medical mr-1"></i> Note</button>
+                            </div>
+                            <div id="editor_5" class="feedback-editor" contenteditable="true" placeholder="Viết câu trả lời của bạn vào đây..."></div>
+                        </div>
+
+                        <!-- Q6 -->
+                        <div class="mb-6 pl-4 border-l-2 border-green-400">
+                            <h4 class="font-bold text-gray-800 mb-2">6. Public Awareness (Solutions)</h4>
+                            <p class="text-sm text-gray-700 mb-3 leading-relaxed"><strong>Câu hỏi dẫn dắt:</strong> Để củng cố trách nhiệm môi trường của mỗi cá nhân, cộng đồng cần thực hiện hành động gì liên quan đến việc bảo tồn nước và ngăn ngừa ô nhiễm?</p>
+                            <div class="mb-3">
+                                <input type="checkbox" id="hint-p3-6" class="hint-toggle hidden">
+                                <label for="hint-p3-6" class="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded cursor-pointer hover:bg-emerald-100 transition"><i class="fas fa-lightbulb mr-1"></i> Hiện Vocab Hint</label>
+                                <div class="hint-content">
+                                    <ul class="list-disc pl-4 space-y-1">
+                                        <li><strong>raise public awareness</strong> (v): nâng cao nhận thức cộng đồng</li>
+                                        <li><strong>water conservation</strong> (n): sự bảo tồn nước</li>
+                                        <li><strong>environmental responsibility</strong> (n): trách nhiệm với môi trường</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div id="toolbar_editor_6" class="hidden toolbar mb-2 bg-gray-100 border border-gray-300 rounded p-1 flex space-x-1 w-fit">
+                                <button type="button" onclick="formatDoc('bold')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 font-bold hover:bg-gray-200"><i class="fas fa-bold"></i></button>
+                                <button type="button" onclick="formatDoc('strikeThrough')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 hover:bg-gray-200"><i class="fas fa-strikethrough"></i></button>
+                                <button type="button" onclick="formatDoc('foreColor', 'red')" class="w-8 h-8 rounded flex items-center justify-center text-red-600 hover:bg-red-50"><i class="fas fa-palette"></i></button>
+                                <button type="button" onclick="formatDoc('hiliteColor', 'yellow')" class="w-8 h-8 rounded flex items-center justify-center text-yellow-600 hover:bg-yellow-50"><i class="fas fa-highlighter"></i></button>
+                                <div class="w-px h-5 bg-gray-300 my-auto mx-1"></div>
+                                <button type="button" onclick="addTeacherNote()" class="px-2 h-8 rounded flex items-center justify-center text-blue-600 text-sm font-semibold hover:bg-blue-50"><i class="fas fa-comment-medical mr-1"></i> Note</button>
+                            </div>
+                            <div id="editor_6" class="feedback-editor" contenteditable="true" placeholder="Viết câu trả lời của bạn vào đây..."></div>
+                        </div>
+
+                        <!-- Q7 -->
+                        <div class="mb-6 pl-4 border-l-2 border-green-400">
+                            <h4 class="font-bold text-gray-800 mb-2">7. Regular Inspection (Solutions)</h4>
+                            <p class="text-sm text-gray-700 mb-3 leading-relaxed"><strong>Câu hỏi dẫn dắt:</strong> Nhằm phát hiện sớm các hành vi xả rác/chất thải trái phép, các cơ quan chức năng cần tiến hành hoạt động gì thường xuyên đối với các nhà máy?</p>
+                            <div class="mb-3">
+                                <input type="checkbox" id="hint-p3-7" class="hint-toggle hidden">
+                                <label for="hint-p3-7" class="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded cursor-pointer hover:bg-emerald-100 transition"><i class="fas fa-lightbulb mr-1"></i> Hiện Vocab Hint</label>
+                                <div class="hint-content">
+                                    <ul class="list-disc pl-4 space-y-1">
+                                        <li><strong>conduct regular inspections</strong> (v): tiến hành kiểm tra thường xuyên</li>
+                                        <li><strong>detect illegal waste disposal</strong> (v): phát hiện việc xả thải trái phép</li>
+                                        <li><strong>at an early stage</strong> (adv): ở giai đoạn sớm</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div id="toolbar_editor_7" class="hidden toolbar mb-2 bg-gray-100 border border-gray-300 rounded p-1 flex space-x-1 w-fit">
+                                <button type="button" onclick="formatDoc('bold')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 font-bold hover:bg-gray-200"><i class="fas fa-bold"></i></button>
+                                <button type="button" onclick="formatDoc('strikeThrough')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 hover:bg-gray-200"><i class="fas fa-strikethrough"></i></button>
+                                <button type="button" onclick="formatDoc('foreColor', 'red')" class="w-8 h-8 rounded flex items-center justify-center text-red-600 hover:bg-red-50"><i class="fas fa-palette"></i></button>
+                                <button type="button" onclick="formatDoc('hiliteColor', 'yellow')" class="w-8 h-8 rounded flex items-center justify-center text-yellow-600 hover:bg-yellow-50"><i class="fas fa-highlighter"></i></button>
+                                <div class="w-px h-5 bg-gray-300 my-auto mx-1"></div>
+                                <button type="button" onclick="addTeacherNote()" class="px-2 h-8 rounded flex items-center justify-center text-blue-600 text-sm font-semibold hover:bg-blue-50"><i class="fas fa-comment-medical mr-1"></i> Note</button>
+                            </div>
+                            <div id="editor_7" class="feedback-editor" contenteditable="true" placeholder="Viết câu trả lời của bạn vào đây..."></div>
+                        </div>
+
+                        <!-- Q8 -->
+                        <div class="mb-6 pl-4 border-l-2 border-green-400">
+                            <h4 class="font-bold text-gray-800 mb-2">8. Oil Transportation Safety (Solutions)</h4>
+                            <p class="text-sm text-gray-700 mb-3 leading-relaxed"><strong>Câu hỏi dẫn dắt:</strong> Để giảm thiểu rủi ro rò rỉ và tràn dầu trên đại dương, ngành công nghiệp khai thác cần thực thi các tiêu chuẩn an toàn nghiêm ngặt hơn đối với hoạt động vận chuyển và hoạt động nào khác?</p>
+                            <div class="mb-3">
+                                <input type="checkbox" id="hint-p3-8" class="hint-toggle hidden">
+                                <label for="hint-p3-8" class="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded cursor-pointer hover:bg-emerald-100 transition"><i class="fas fa-lightbulb mr-1"></i> Hiện Vocab Hint</label>
+                                <div class="hint-content">
+                                    <ul class="list-disc pl-4 space-y-1">
+                                        <li><strong>safety standards</strong> (n): các tiêu chuẩn an toàn</li>
+                                        <li><strong>oil transportation</strong> (n): vận chuyển dầu</li>
+                                        <li><strong>offshore drilling</strong> (n): việc khoan/khai thác ngoài khơi</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div id="toolbar_editor_8" class="hidden toolbar mb-2 bg-gray-100 border border-gray-300 rounded p-1 flex space-x-1 w-fit">
+                                <button type="button" onclick="formatDoc('bold')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 font-bold hover:bg-gray-200"><i class="fas fa-bold"></i></button>
+                                <button type="button" onclick="formatDoc('strikeThrough')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 hover:bg-gray-200"><i class="fas fa-strikethrough"></i></button>
+                                <button type="button" onclick="formatDoc('foreColor', 'red')" class="w-8 h-8 rounded flex items-center justify-center text-red-600 hover:bg-red-50"><i class="fas fa-palette"></i></button>
+                                <button type="button" onclick="formatDoc('hiliteColor', 'yellow')" class="w-8 h-8 rounded flex items-center justify-center text-yellow-600 hover:bg-yellow-50"><i class="fas fa-highlighter"></i></button>
+                                <div class="w-px h-5 bg-gray-300 my-auto mx-1"></div>
+                                <button type="button" onclick="addTeacherNote()" class="px-2 h-8 rounded flex items-center justify-center text-blue-600 text-sm font-semibold hover:bg-blue-50"><i class="fas fa-comment-medical mr-1"></i> Note</button>
+                            </div>
+                            <div id="editor_8" class="feedback-editor" contenteditable="true" placeholder="Viết câu trả lời của bạn vào đây..."></div>
+                        </div>
+
+                    </div>
+
+                    <div class="mt-8 flex justify-between">
+                        <button type="button" onclick="nextPage('page-3', 'page-2')" class="text-gray-500 hover:text-gray-800 font-semibold py-2 px-4 transition"><i class="fas fa-arrow-left mr-2"></i> Quay lại</button>
+                        <button type="button" onclick="nextPage('page-3', 'page-4')" class="bg-gray-800 hover:bg-gray-900 text-white font-semibold py-2 px-6 rounded-lg transition shadow">Tiếp tục: Phần 3.2 <i class="fas fa-arrow-right ml-2"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="page-4" class="page-section space-y-8">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 md:p-8">
+                    <div class="flex justify-between items-end border-b border-gray-100 pb-4 mb-6">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold mr-3">P3.2</div>
+                            <h2 class="text-xl font-bold text-gray-800">Socratic Questions: Air Pollution</h2>
+                        </div>
+                        <span class="text-sm text-gray-500 font-medium">Phần 2/4</span>
+                    </div>
+
+                    <div class="space-y-6">
+                        <!-- Q9 -->
+                        <div class="mb-6 pl-4 border-l-2 border-red-400">
+                            <h4 class="font-bold text-gray-800 mb-2">9. Private Vehicles (Cause and Impact)</h4>
+                            <p class="text-sm text-gray-700 mb-3 leading-relaxed"><strong>Câu hỏi dẫn dắt:</strong> Số lượng phương tiện cá nhân gia tăng sẽ thải ra một lượng lớn các loại khí thải và khí nhà kính nào? Sự suy giảm chất lượng không khí này sẽ trực tiếp gây ra các loại bệnh gì cho con người (như hen suyễn, ung thư)?</p>
+                            <div class="mb-3">
+                                <input type="checkbox" id="hint-p3-9" class="hint-toggle hidden">
+                                <label for="hint-p3-9" class="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded cursor-pointer hover:bg-emerald-100 transition"><i class="fas fa-lightbulb mr-1"></i> Hiện Vocab Hint</label>
+                                <div class="hint-content">
+                                    <ul class="list-disc pl-4 space-y-1">
+                                        <li><strong>private vehicles</strong> (n): các phương tiện cá nhân</li>
+                                        <li><strong>exhaust fumes</strong> (n): khói thải/khí xả</li>
+                                        <li><strong>respiratory diseases</strong> (n): các bệnh về đường hô hấp</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div id="toolbar_editor_9" class="hidden toolbar mb-2 bg-gray-100 border border-gray-300 rounded p-1 flex space-x-1 w-fit">
+                                <button type="button" onclick="formatDoc('bold')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 font-bold hover:bg-gray-200"><i class="fas fa-bold"></i></button>
+                                <button type="button" onclick="formatDoc('strikeThrough')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 hover:bg-gray-200"><i class="fas fa-strikethrough"></i></button>
+                                <button type="button" onclick="formatDoc('foreColor', 'red')" class="w-8 h-8 rounded flex items-center justify-center text-red-600 hover:bg-red-50"><i class="fas fa-palette"></i></button>
+                                <button type="button" onclick="formatDoc('hiliteColor', 'yellow')" class="w-8 h-8 rounded flex items-center justify-center text-yellow-600 hover:bg-yellow-50"><i class="fas fa-highlighter"></i></button>
+                                <div class="w-px h-5 bg-gray-300 my-auto mx-1"></div>
+                                <button type="button" onclick="addTeacherNote()" class="px-2 h-8 rounded flex items-center justify-center text-blue-600 text-sm font-semibold hover:bg-blue-50"><i class="fas fa-comment-medical mr-1"></i> Note</button>
+                            </div>
+                            <div id="editor_9" class="feedback-editor" contenteditable="true" placeholder="Viết câu trả lời của bạn vào đây..."></div>
+                        </div>
+
+                        <!-- Q10 -->
+                        <div class="mb-6 pl-4 border-l-2 border-red-400">
+                            <h4 class="font-bold text-gray-800 mb-2">10. Industrial Emissions (Cause and Impact)</h4>
+                            <p class="text-sm text-gray-700 mb-3 leading-relaxed"><strong>Câu hỏi dẫn dắt:</strong> Khí thải công nghiệp từ các nhà máy không chỉ làm tăng mức độ ô nhiễm không khí mà còn có khả năng gây ra các hiện tượng thời tiết nguy hiểm nào? Những hiện tượng này tàn phá điều gì trong tự nhiên?</p>
+                            <div class="mb-3">
+                                <input type="checkbox" id="hint-p3-10" class="hint-toggle hidden">
+                                <label for="hint-p3-10" class="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded cursor-pointer hover:bg-emerald-100 transition"><i class="fas fa-lightbulb mr-1"></i> Hiện Vocab Hint</label>
+                                <div class="hint-content">
+                                    <ul class="list-disc pl-4 space-y-1">
+                                        <li><strong>industrial emissions</strong> (n): khí thải công nghiệp</li>
+                                        <li><strong>smog and acid rain</strong> (n): sương mù độc hại và mưa axit</li>
+                                        <li><strong>damage ecosystems</strong> (v): phá hủy hệ sinh thái</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div id="toolbar_editor_10" class="hidden toolbar mb-2 bg-gray-100 border border-gray-300 rounded p-1 flex space-x-1 w-fit">
+                                <button type="button" onclick="formatDoc('bold')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 font-bold hover:bg-gray-200"><i class="fas fa-bold"></i></button>
+                                <button type="button" onclick="formatDoc('strikeThrough')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 hover:bg-gray-200"><i class="fas fa-strikethrough"></i></button>
+                                <button type="button" onclick="formatDoc('foreColor', 'red')" class="w-8 h-8 rounded flex items-center justify-center text-red-600 hover:bg-red-50"><i class="fas fa-palette"></i></button>
+                                <button type="button" onclick="formatDoc('hiliteColor', 'yellow')" class="w-8 h-8 rounded flex items-center justify-center text-yellow-600 hover:bg-yellow-50"><i class="fas fa-highlighter"></i></button>
+                                <div class="w-px h-5 bg-gray-300 my-auto mx-1"></div>
+                                <button type="button" onclick="addTeacherNote()" class="px-2 h-8 rounded flex items-center justify-center text-blue-600 text-sm font-semibold hover:bg-blue-50"><i class="fas fa-comment-medical mr-1"></i> Note</button>
+                            </div>
+                            <div id="editor_10" class="feedback-editor" contenteditable="true" placeholder="Viết câu trả lời của bạn vào đây..."></div>
+                        </div>
+
+                        <!-- Q11 -->
+                        <div class="mb-6 pl-4 border-l-2 border-red-400">
+                            <h4 class="font-bold text-gray-800 mb-2">11. Deforestation (Cause and Impact)</h4>
+                            <p class="text-sm text-gray-700 mb-3 leading-relaxed"><strong>Câu hỏi dẫn dắt:</strong> Nạn phá rừng làm giảm khả năng hấp thụ CO2 của trái đất. Điều này làm trầm trọng thêm hiện tượng gì, từ đó đẩy nhanh biến đổi khí hậu và gây ra các hiện tượng thời tiết nào (ví dụ sự nóng lên toàn cầu)?</p>
+                            <div class="mb-3">
+                                <input type="checkbox" id="hint-p3-11" class="hint-toggle hidden">
+                                <label for="hint-p3-11" class="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded cursor-pointer hover:bg-emerald-100 transition"><i class="fas fa-lightbulb mr-1"></i> Hiện Vocab Hint</label>
+                                <div class="hint-content">
+                                    <ul class="list-disc pl-4 space-y-1">
+                                        <li><strong>deforestation</strong> (n): nạn phá rừng</li>
+                                        <li><strong>the greenhouse effect</strong> (n): hiệu ứng nhà kính</li>
+                                        <li><strong>extreme weather events</strong> (n): những hiện tượng thời tiết cực đoan</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div id="toolbar_editor_11" class="hidden toolbar mb-2 bg-gray-100 border border-gray-300 rounded p-1 flex space-x-1 w-fit">
+                                <button type="button" onclick="formatDoc('bold')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 font-bold hover:bg-gray-200"><i class="fas fa-bold"></i></button>
+                                <button type="button" onclick="formatDoc('strikeThrough')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 hover:bg-gray-200"><i class="fas fa-strikethrough"></i></button>
+                                <button type="button" onclick="formatDoc('foreColor', 'red')" class="w-8 h-8 rounded flex items-center justify-center text-red-600 hover:bg-red-50"><i class="fas fa-palette"></i></button>
+                                <button type="button" onclick="formatDoc('hiliteColor', 'yellow')" class="w-8 h-8 rounded flex items-center justify-center text-yellow-600 hover:bg-yellow-50"><i class="fas fa-highlighter"></i></button>
+                                <div class="w-px h-5 bg-gray-300 my-auto mx-1"></div>
+                                <button type="button" onclick="addTeacherNote()" class="px-2 h-8 rounded flex items-center justify-center text-blue-600 text-sm font-semibold hover:bg-blue-50"><i class="fas fa-comment-medical mr-1"></i> Note</button>
+                            </div>
+                            <div id="editor_11" class="feedback-editor" contenteditable="true" placeholder="Viết câu trả lời của bạn vào đây..."></div>
+                        </div>
+
+                        <!-- Q12 -->
+                        <div class="mb-6 pl-4 border-l-2 border-red-400">
+                            <h4 class="font-bold text-gray-800 mb-2">12. Waste Combustion (Cause and Impact)</h4>
+                            <p class="text-sm text-gray-700 mb-3 leading-relaxed"><strong>Câu hỏi dẫn dắt:</strong> Việc đốt rác thải hở ngoài trời giải phóng hóa chất độc hại và khói. Hành động này làm suy giảm chất lượng không khí và đặt ra những rủi ro nào cho sức khỏe con người?</p>
+                            <div class="mb-3">
+                                <input type="checkbox" id="hint-p3-12" class="hint-toggle hidden">
+                                <label for="hint-p3-12" class="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded cursor-pointer hover:bg-emerald-100 transition"><i class="fas fa-lightbulb mr-1"></i> Hiện Vocab Hint</label>
+                                <div class="hint-content">
+                                    <ul class="list-disc pl-4 space-y-1">
+                                        <li><strong>waste combustion</strong> (n): việc đốt rác thải</li>
+                                        <li><strong>degrade air quality</strong> (v): làm suy giảm chất lượng không khí</li>
+                                        <li><strong>serious health risks</strong> (n): những rủi ro sức khỏe nghiêm trọng</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div id="toolbar_editor_12" class="hidden toolbar mb-2 bg-gray-100 border border-gray-300 rounded p-1 flex space-x-1 w-fit">
+                                <button type="button" onclick="formatDoc('bold')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 font-bold hover:bg-gray-200"><i class="fas fa-bold"></i></button>
+                                <button type="button" onclick="formatDoc('strikeThrough')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 hover:bg-gray-200"><i class="fas fa-strikethrough"></i></button>
+                                <button type="button" onclick="formatDoc('foreColor', 'red')" class="w-8 h-8 rounded flex items-center justify-center text-red-600 hover:bg-red-50"><i class="fas fa-palette"></i></button>
+                                <button type="button" onclick="formatDoc('hiliteColor', 'yellow')" class="w-8 h-8 rounded flex items-center justify-center text-yellow-600 hover:bg-yellow-50"><i class="fas fa-highlighter"></i></button>
+                                <div class="w-px h-5 bg-gray-300 my-auto mx-1"></div>
+                                <button type="button" onclick="addTeacherNote()" class="px-2 h-8 rounded flex items-center justify-center text-blue-600 text-sm font-semibold hover:bg-blue-50"><i class="fas fa-comment-medical mr-1"></i> Note</button>
+                            </div>
+                            <div id="editor_12" class="feedback-editor" contenteditable="true" placeholder="Viết câu trả lời của bạn vào đây..."></div>
+                        </div>
+                        
+                        <!-- Q13 -->
+                        <div class="mb-6 pl-4 border-l-2 border-green-400">
+                            <h4 class="font-bold text-gray-800 mb-2">13. Use of Electric Vehicles (Solutions)</h4>
+                            <p class="text-sm text-gray-700 mb-3 leading-relaxed"><strong>Câu hỏi dẫn dắt:</strong> Khuyến khích sử dụng xe điện sẽ giúp giảm thiểu sự phụ thuộc vào nguồn nguyên liệu hóa thạch nào, từ đó mang lại tác động gì cho không khí?</p>
+                            <div class="mb-3">
+                                <input type="checkbox" id="hint-p3-13" class="hint-toggle hidden">
+                                <label for="hint-p3-13" class="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded cursor-pointer hover:bg-emerald-100 transition"><i class="fas fa-lightbulb mr-1"></i> Hiện Vocab Hint</label>
+                                <div class="hint-content">
+                                    <ul class="list-disc pl-4 space-y-1">
+                                        <li><strong>electric vehicles</strong> (n): xe điện</li>
+                                        <li><strong>dependence on fossil fuels</strong> (n): sự phụ thuộc vào nhiên liệu hóa thạch</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div id="toolbar_editor_13" class="hidden toolbar mb-2 bg-gray-100 border border-gray-300 rounded p-1 flex space-x-1 w-fit">
+                                <button type="button" onclick="formatDoc('bold')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 font-bold hover:bg-gray-200"><i class="fas fa-bold"></i></button>
+                                <button type="button" onclick="formatDoc('strikeThrough')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 hover:bg-gray-200"><i class="fas fa-strikethrough"></i></button>
+                                <button type="button" onclick="formatDoc('foreColor', 'red')" class="w-8 h-8 rounded flex items-center justify-center text-red-600 hover:bg-red-50"><i class="fas fa-palette"></i></button>
+                                <button type="button" onclick="formatDoc('hiliteColor', 'yellow')" class="w-8 h-8 rounded flex items-center justify-center text-yellow-600 hover:bg-yellow-50"><i class="fas fa-highlighter"></i></button>
+                                <div class="w-px h-5 bg-gray-300 my-auto mx-1"></div>
+                                <button type="button" onclick="addTeacherNote()" class="px-2 h-8 rounded flex items-center justify-center text-blue-600 text-sm font-semibold hover:bg-blue-50"><i class="fas fa-comment-medical mr-1"></i> Note</button>
+                            </div>
+                            <div id="editor_13" class="feedback-editor" contenteditable="true" placeholder="Viết câu trả lời của bạn vào đây..."></div>
+                        </div>
+
+                        <!-- Q14 -->
+                        <div class="mb-6 pl-4 border-l-2 border-green-400">
+                            <h4 class="font-bold text-gray-800 mb-2">14. Enforce Emission Standards (Solutions)</h4>
+                            <p class="text-sm text-gray-700 mb-3 leading-relaxed"><strong>Câu hỏi dẫn dắt:</strong> Việc thực thi các tiêu chuẩn khí thải nghiêm ngặt và mức phạt nặng sẽ hạn chế xả thải những chất gì, từ đó bảo vệ sức khỏe cộng đồng?</p>
+                            <div class="mb-3">
+                                <input type="checkbox" id="hint-p3-14" class="hint-toggle hidden">
+                                <label for="hint-p3-14" class="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded cursor-pointer hover:bg-emerald-100 transition"><i class="fas fa-lightbulb mr-1"></i> Hiện Vocab Hint</label>
+                                <div class="hint-content">
+                                    <ul class="list-disc pl-4 space-y-1">
+                                        <li><strong>enforce stricter emission standards</strong> (v): thực thi các tiêu chuẩn khí thải khắt khe hơn</li>
+                                        <li><strong>harmful pollutants</strong> (n): các chất gây ô nhiễm độc hại</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div id="toolbar_editor_14" class="hidden toolbar mb-2 bg-gray-100 border border-gray-300 rounded p-1 flex space-x-1 w-fit">
+                                <button type="button" onclick="formatDoc('bold')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 font-bold hover:bg-gray-200"><i class="fas fa-bold"></i></button>
+                                <button type="button" onclick="formatDoc('strikeThrough')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 hover:bg-gray-200"><i class="fas fa-strikethrough"></i></button>
+                                <button type="button" onclick="formatDoc('foreColor', 'red')" class="w-8 h-8 rounded flex items-center justify-center text-red-600 hover:bg-red-50"><i class="fas fa-palette"></i></button>
+                                <button type="button" onclick="formatDoc('hiliteColor', 'yellow')" class="w-8 h-8 rounded flex items-center justify-center text-yellow-600 hover:bg-yellow-50"><i class="fas fa-highlighter"></i></button>
+                                <div class="w-px h-5 bg-gray-300 my-auto mx-1"></div>
+                                <button type="button" onclick="addTeacherNote()" class="px-2 h-8 rounded flex items-center justify-center text-blue-600 text-sm font-semibold hover:bg-blue-50"><i class="fas fa-comment-medical mr-1"></i> Note</button>
+                            </div>
+                            <div id="editor_14" class="feedback-editor" contenteditable="true" placeholder="Viết câu trả lời của bạn vào đây..."></div>
+                        </div>
+
+                        <!-- Q15 -->
+                        <div class="mb-6 pl-4 border-l-2 border-green-400">
+                            <h4 class="font-bold text-gray-800 mb-2">15. Advanced Technologies (Solutions)</h4>
+                            <p class="text-sm text-gray-700 mb-3 leading-relaxed"><strong>Câu hỏi dẫn dắt:</strong> Các nhà máy nên được khuyến khích áp dụng công nghệ kiểm soát khí thải và phương pháp gì để giảm lượng khí độc ra môi trường?</p>
+                            <div class="mb-3">
+                                <input type="checkbox" id="hint-p3-15" class="hint-toggle hidden">
+                                <label for="hint-p3-15" class="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded cursor-pointer hover:bg-emerald-100 transition"><i class="fas fa-lightbulb mr-1"></i> Hiện Vocab Hint</label>
+                                <div class="hint-content">
+                                    <ul class="list-disc pl-4 space-y-1">
+                                        <li><strong>emission-control technologies</strong> (n): công nghệ kiểm soát khí thải</li>
+                                        <li><strong>advanced filtration</strong> (n): phương pháp lọc tiên tiến</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div id="toolbar_editor_15" class="hidden toolbar mb-2 bg-gray-100 border border-gray-300 rounded p-1 flex space-x-1 w-fit">
+                                <button type="button" onclick="formatDoc('bold')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 font-bold hover:bg-gray-200"><i class="fas fa-bold"></i></button>
+                                <button type="button" onclick="formatDoc('strikeThrough')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 hover:bg-gray-200"><i class="fas fa-strikethrough"></i></button>
+                                <button type="button" onclick="formatDoc('foreColor', 'red')" class="w-8 h-8 rounded flex items-center justify-center text-red-600 hover:bg-red-50"><i class="fas fa-palette"></i></button>
+                                <button type="button" onclick="formatDoc('hiliteColor', 'yellow')" class="w-8 h-8 rounded flex items-center justify-center text-yellow-600 hover:bg-yellow-50"><i class="fas fa-highlighter"></i></button>
+                                <div class="w-px h-5 bg-gray-300 my-auto mx-1"></div>
+                                <button type="button" onclick="addTeacherNote()" class="px-2 h-8 rounded flex items-center justify-center text-blue-600 text-sm font-semibold hover:bg-blue-50"><i class="fas fa-comment-medical mr-1"></i> Note</button>
+                            </div>
+                            <div id="editor_15" class="feedback-editor" contenteditable="true" placeholder="Viết câu trả lời của bạn vào đây..."></div>
+                        </div>
+
+                        <!-- Q16 -->
+                        <div class="mb-6 pl-4 border-l-2 border-green-400">
+                            <h4 class="font-bold text-gray-800 mb-2">16. Reforestation Programs (Solutions)</h4>
+                            <p class="text-sm text-gray-700 mb-3 leading-relaxed"><strong>Câu hỏi dẫn dắt:</strong> Việc thực hiện các chương trình trồng rừng quy mô lớn giúp gia tăng quá trình nào, từ đó làm dịu bớt tình trạng biến đổi khí hậu?</p>
+                            <div class="mb-3">
+                                <input type="checkbox" id="hint-p3-16" class="hint-toggle hidden">
+                                <label for="hint-p3-16" class="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded cursor-pointer hover:bg-emerald-100 transition"><i class="fas fa-lightbulb mr-1"></i> Hiện Vocab Hint</label>
+                                <div class="hint-content">
+                                    <ul class="list-disc pl-4 space-y-1">
+                                        <li><strong>large-scale reforestation programs</strong> (n): chương trình trồng rừng quy mô lớn</li>
+                                        <li><strong>carbon absorption</strong> (n): sự hấp thụ carbon</li>
+                                        <li><strong>alleviate climate change</strong> (v): làm dịu/giảm bớt biến đổi khí hậu</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div id="toolbar_editor_16" class="hidden toolbar mb-2 bg-gray-100 border border-gray-300 rounded p-1 flex space-x-1 w-fit">
+                                <button type="button" onclick="formatDoc('bold')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 font-bold hover:bg-gray-200"><i class="fas fa-bold"></i></button>
+                                <button type="button" onclick="formatDoc('strikeThrough')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 hover:bg-gray-200"><i class="fas fa-strikethrough"></i></button>
+                                <button type="button" onclick="formatDoc('foreColor', 'red')" class="w-8 h-8 rounded flex items-center justify-center text-red-600 hover:bg-red-50"><i class="fas fa-palette"></i></button>
+                                <button type="button" onclick="formatDoc('hiliteColor', 'yellow')" class="w-8 h-8 rounded flex items-center justify-center text-yellow-600 hover:bg-yellow-50"><i class="fas fa-highlighter"></i></button>
+                                <div class="w-px h-5 bg-gray-300 my-auto mx-1"></div>
+                                <button type="button" onclick="addTeacherNote()" class="px-2 h-8 rounded flex items-center justify-center text-blue-600 text-sm font-semibold hover:bg-blue-50"><i class="fas fa-comment-medical mr-1"></i> Note</button>
+                            </div>
+                            <div id="editor_16" class="feedback-editor" contenteditable="true" placeholder="Viết câu trả lời của bạn vào đây..."></div>
+                        </div>
+
+                        <!-- Q17 -->
+                        <div class="mb-6 pl-4 border-l-2 border-green-400">
+                            <h4 class="font-bold text-gray-800 mb-2">17. Waste-to-Energy Plants (Solutions)</h4>
+                            <p class="text-sm text-gray-700 mb-3 leading-relaxed"><strong>Câu hỏi dẫn dắt:</strong> Để vừa tạo ra điện năng vừa giảm thiểu khí thải độc hại khi đốt rác, chúng ta nên đầu tư phát triển loại nhà máy nào?</p>
+                            <div class="mb-3">
+                                <input type="checkbox" id="hint-p3-17" class="hint-toggle hidden">
+                                <label for="hint-p3-17" class="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded cursor-pointer hover:bg-emerald-100 transition"><i class="fas fa-lightbulb mr-1"></i> Hiện Vocab Hint</label>
+                                <div class="hint-content">
+                                    <ul class="list-disc pl-4 space-y-1">
+                                        <li><strong>waste-to-energy plants</strong> (n): nhà máy đốt rác phát điện</li>
+                                        <li><strong>generate energy</strong> (v): tạo ra năng lượng</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div id="toolbar_editor_17" class="hidden toolbar mb-2 bg-gray-100 border border-gray-300 rounded p-1 flex space-x-1 w-fit">
+                                <button type="button" onclick="formatDoc('bold')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 font-bold hover:bg-gray-200"><i class="fas fa-bold"></i></button>
+                                <button type="button" onclick="formatDoc('strikeThrough')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 hover:bg-gray-200"><i class="fas fa-strikethrough"></i></button>
+                                <button type="button" onclick="formatDoc('foreColor', 'red')" class="w-8 h-8 rounded flex items-center justify-center text-red-600 hover:bg-red-50"><i class="fas fa-palette"></i></button>
+                                <button type="button" onclick="formatDoc('hiliteColor', 'yellow')" class="w-8 h-8 rounded flex items-center justify-center text-yellow-600 hover:bg-yellow-50"><i class="fas fa-highlighter"></i></button>
+                                <div class="w-px h-5 bg-gray-300 my-auto mx-1"></div>
+                                <button type="button" onclick="addTeacherNote()" class="px-2 h-8 rounded flex items-center justify-center text-blue-600 text-sm font-semibold hover:bg-blue-50"><i class="fas fa-comment-medical mr-1"></i> Note</button>
+                            </div>
+                            <div id="editor_17" class="feedback-editor" contenteditable="true" placeholder="Viết câu trả lời của bạn vào đây..."></div>
+                        </div>
+
+                    </div>
+
+                    <div class="mt-8 flex justify-between">
+                        <button type="button" onclick="nextPage('page-4', 'page-3')" class="text-gray-500 hover:text-gray-800 font-semibold py-2 px-4 transition"><i class="fas fa-arrow-left mr-2"></i> Quay lại</button>
+                        <button type="button" onclick="nextPage('page-4', 'page-5')" class="bg-gray-800 hover:bg-gray-900 text-white font-semibold py-2 px-6 rounded-lg transition shadow">Tiếp tục: Phần 3.3 <i class="fas fa-arrow-right ml-2"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="page-5" class="page-section space-y-8">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 md:p-8">
+                    <div class="flex justify-between items-end border-b border-gray-100 pb-4 mb-6">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold mr-3">P3.3</div>
+                            <h2 class="text-xl font-bold text-gray-800">Socratic: Overpopulation (Impacts)</h2>
+                        </div>
+                        <span class="text-sm text-gray-500 font-medium">Phần 3/4</span>
+                    </div>
+
+                    <div class="space-y-6">
+                        <!-- Q18 -->
+                        <div class="mb-6 pl-4 border-l-2 border-red-400">
+                            <h4 class="font-bold text-gray-800 mb-2">18. High Birth Rates & Lifespan (Cause and Impact)</h4>
+                            <p class="text-sm text-gray-700 mb-3 leading-relaxed"><strong>Câu hỏi dẫn dắt:</strong> Y tế phát triển giúp kéo dài tuổi thọ và tạo ra sự bùng nổ dân số. Sự tăng trưởng này sẽ làm tăng áp lực lên các nguồn tài nguyên thiên nhiên (nước, thức ăn), cuối cùng dẫn đến tình trạng gì?</p>
+                            <div class="mb-3">
+                                <input type="checkbox" id="hint-p3-18" class="hint-toggle hidden">
+                                <label for="hint-p3-18" class="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded cursor-pointer hover:bg-emerald-100 transition"><i class="fas fa-lightbulb mr-1"></i> Hiện Vocab Hint</label>
+                                <div class="hint-content">
+                                    <ul class="list-disc pl-4 space-y-1">
+                                        <li><strong>rapid population growth</strong> (n): sự gia tăng dân số nhanh chóng</li>
+                                        <li><strong>pressure on natural resources</strong> (n): áp lực lên tài nguyên thiên nhiên</li>
+                                        <li><strong>resource depletion</strong> (n): sự cạn kiệt tài nguyên</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div id="toolbar_editor_18" class="hidden toolbar mb-2 bg-gray-100 border border-gray-300 rounded p-1 flex space-x-1 w-fit">
+                                <button type="button" onclick="formatDoc('bold')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 font-bold hover:bg-gray-200"><i class="fas fa-bold"></i></button>
+                                <button type="button" onclick="formatDoc('strikeThrough')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 hover:bg-gray-200"><i class="fas fa-strikethrough"></i></button>
+                                <button type="button" onclick="formatDoc('foreColor', 'red')" class="w-8 h-8 rounded flex items-center justify-center text-red-600 hover:bg-red-50"><i class="fas fa-palette"></i></button>
+                                <button type="button" onclick="formatDoc('hiliteColor', 'yellow')" class="w-8 h-8 rounded flex items-center justify-center text-yellow-600 hover:bg-yellow-50"><i class="fas fa-highlighter"></i></button>
+                                <div class="w-px h-5 bg-gray-300 my-auto mx-1"></div>
+                                <button type="button" onclick="addTeacherNote()" class="px-2 h-8 rounded flex items-center justify-center text-blue-600 text-sm font-semibold hover:bg-blue-50"><i class="fas fa-comment-medical mr-1"></i> Note</button>
+                            </div>
+                            <div id="editor_18" class="feedback-editor" contenteditable="true" placeholder="Viết câu trả lời của bạn vào đây..."></div>
+                        </div>
+
+                        <!-- Q19 -->
+                        <div class="mb-6 pl-4 border-l-2 border-red-400">
+                            <h4 class="font-bold text-gray-800 mb-2">19. Urban Expansion (Cause and Impact)</h4>
+                            <p class="text-sm text-gray-700 mb-3 leading-relaxed"><strong>Câu hỏi dẫn dắt:</strong> Mật độ dân số cao ở các khu vực thành thị gây ra tình trạng quá tải và vấn đề gì về giao thông? Điều này làm gia tăng ô nhiễm và kéo theo hệ quả gì cho người dân?</p>
+                            <div class="mb-3">
+                                <input type="checkbox" id="hint-p3-19" class="hint-toggle hidden">
+                                <label for="hint-p3-19" class="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded cursor-pointer hover:bg-emerald-100 transition"><i class="fas fa-lightbulb mr-1"></i> Hiện Vocab Hint</label>
+                                <div class="hint-content">
+                                    <ul class="list-disc pl-4 space-y-1">
+                                        <li><strong>urban expansion</strong> (n): sự mở rộng đô thị</li>
+                                        <li><strong>traffic congestion</strong> (n): tắc nghẽn giao thông</li>
+                                        <li><strong>lower quality of life</strong> (n): chất lượng cuộc sống thấp hơn</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div id="toolbar_editor_19" class="hidden toolbar mb-2 bg-gray-100 border border-gray-300 rounded p-1 flex space-x-1 w-fit">
+                                <button type="button" onclick="formatDoc('bold')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 font-bold hover:bg-gray-200"><i class="fas fa-bold"></i></button>
+                                <button type="button" onclick="formatDoc('strikeThrough')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 hover:bg-gray-200"><i class="fas fa-strikethrough"></i></button>
+                                <button type="button" onclick="formatDoc('foreColor', 'red')" class="w-8 h-8 rounded flex items-center justify-center text-red-600 hover:bg-red-50"><i class="fas fa-palette"></i></button>
+                                <button type="button" onclick="formatDoc('hiliteColor', 'yellow')" class="w-8 h-8 rounded flex items-center justify-center text-yellow-600 hover:bg-yellow-50"><i class="fas fa-highlighter"></i></button>
+                                <div class="w-px h-5 bg-gray-300 my-auto mx-1"></div>
+                                <button type="button" onclick="addTeacherNote()" class="px-2 h-8 rounded flex items-center justify-center text-blue-600 text-sm font-semibold hover:bg-blue-50"><i class="fas fa-comment-medical mr-1"></i> Note</button>
+                            </div>
+                            <div id="editor_19" class="feedback-editor" contenteditable="true" placeholder="Viết câu trả lời của bạn vào đây..."></div>
+                        </div>
+
+                        <!-- Q20 -->
+                        <div class="mb-6 pl-4 border-l-2 border-red-400">
+                            <h4 class="font-bold text-gray-800 mb-2">20. Competitive Job Market (Cause and Impact)</h4>
+                            <p class="text-sm text-gray-700 mb-3 leading-relaxed"><strong>Câu hỏi dẫn dắt:</strong> Thị trường việc làm cạnh tranh cao do dân số đông sẽ đẩy tỷ lệ gì tăng lên? Việc thiếu thu nhập có thể làm phát sinh tệ nạn gì (như trộm cắp) trong xã hội?</p>
+                            <div class="mb-3">
+                                <input type="checkbox" id="hint-p3-20" class="hint-toggle hidden">
+                                <label for="hint-p3-20" class="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded cursor-pointer hover:bg-emerald-100 transition"><i class="fas fa-lightbulb mr-1"></i> Hiện Vocab Hint</label>
+                                <div class="hint-content">
+                                    <ul class="list-disc pl-4 space-y-1">
+                                        <li><strong>competitive job market</strong> (n): thị trường việc làm cạnh tranh</li>
+                                        <li><strong>rising unemployment rates</strong> (n): tỷ lệ thất nghiệp gia tăng</li>
+                                        <li><strong>crime</strong> (n): tội phạm / tệ nạn</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div id="toolbar_editor_20" class="hidden toolbar mb-2 bg-gray-100 border border-gray-300 rounded p-1 flex space-x-1 w-fit">
+                                <button type="button" onclick="formatDoc('bold')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 font-bold hover:bg-gray-200"><i class="fas fa-bold"></i></button>
+                                <button type="button" onclick="formatDoc('strikeThrough')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 hover:bg-gray-200"><i class="fas fa-strikethrough"></i></button>
+                                <button type="button" onclick="formatDoc('foreColor', 'red')" class="w-8 h-8 rounded flex items-center justify-center text-red-600 hover:bg-red-50"><i class="fas fa-palette"></i></button>
+                                <button type="button" onclick="formatDoc('hiliteColor', 'yellow')" class="w-8 h-8 rounded flex items-center justify-center text-yellow-600 hover:bg-yellow-50"><i class="fas fa-highlighter"></i></button>
+                                <div class="w-px h-5 bg-gray-300 my-auto mx-1"></div>
+                                <button type="button" onclick="addTeacherNote()" class="px-2 h-8 rounded flex items-center justify-center text-blue-600 text-sm font-semibold hover:bg-blue-50"><i class="fas fa-comment-medical mr-1"></i> Note</button>
+                            </div>
+                            <div id="editor_20" class="feedback-editor" contenteditable="true" placeholder="Viết câu trả lời của bạn vào đây..."></div>
+                        </div>
+
+                        <!-- Q21 -->
+                        <div class="mb-6 pl-4 border-l-2 border-red-400">
+                            <h4 class="font-bold text-gray-800 mb-2">21. Land Takeover (Cause and Impact)</h4>
+                            <p class="text-sm text-gray-700 mb-3 leading-relaxed"><strong>Câu hỏi dẫn dắt:</strong> Việc đô thị hóa chiếm đoạt diện tích đất lớn sẽ phá hủy nơi nào của động vật? Hậu quả của việc mất nhà là gây ra hiện tượng gì cho hệ sinh thái?</p>
+                            <div class="mb-3">
+                                <input type="checkbox" id="hint-p3-21" class="hint-toggle hidden">
+                                <label for="hint-p3-21" class="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded cursor-pointer hover:bg-emerald-100 transition"><i class="fas fa-lightbulb mr-1"></i> Hiện Vocab Hint</label>
+                                <div class="hint-content">
+                                    <ul class="list-disc pl-4 space-y-1">
+                                        <li><strong>natural habitats</strong> (n): môi trường sống tự nhiên</li>
+                                        <li><strong>biodiversity loss</strong> (n): sự mất mát đa dạng sinh học</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div id="toolbar_editor_21" class="hidden toolbar mb-2 bg-gray-100 border border-gray-300 rounded p-1 flex space-x-1 w-fit">
+                                <button type="button" onclick="formatDoc('bold')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 font-bold hover:bg-gray-200"><i class="fas fa-bold"></i></button>
+                                <button type="button" onclick="formatDoc('strikeThrough')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 hover:bg-gray-200"><i class="fas fa-strikethrough"></i></button>
+                                <button type="button" onclick="formatDoc('foreColor', 'red')" class="w-8 h-8 rounded flex items-center justify-center text-red-600 hover:bg-red-50"><i class="fas fa-palette"></i></button>
+                                <button type="button" onclick="formatDoc('hiliteColor', 'yellow')" class="w-8 h-8 rounded flex items-center justify-center text-yellow-600 hover:bg-yellow-50"><i class="fas fa-highlighter"></i></button>
+                                <div class="w-px h-5 bg-gray-300 my-auto mx-1"></div>
+                                <button type="button" onclick="addTeacherNote()" class="px-2 h-8 rounded flex items-center justify-center text-blue-600 text-sm font-semibold hover:bg-blue-50"><i class="fas fa-comment-medical mr-1"></i> Note</button>
+                            </div>
+                            <div id="editor_21" class="feedback-editor" contenteditable="true" placeholder="Viết câu trả lời của bạn vào đây..."></div>
+                        </div>
+
+                        <!-- Q22 -->
+                        <div class="mb-6 pl-4 border-l-2 border-red-400">
+                            <h4 class="font-bold text-gray-800 mb-2">22. Waste Generation (Cause and Impact)</h4>
+                            <p class="text-sm text-gray-700 mb-3 leading-relaxed"><strong>Câu hỏi dẫn dắt:</strong> Lượng người đông đúc làm tăng lượng rác được sinh ra. Nếu không được xử lý đúng cách, khối lượng rác khổng lồ này sẽ gây ô nhiễm trực tiếp cho những yếu tố nào của môi trường?</p>
+                            <div class="mb-3">
+                                <input type="checkbox" id="hint-p3-22" class="hint-toggle hidden">
+                                <label for="hint-p3-22" class="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded cursor-pointer hover:bg-emerald-100 transition"><i class="fas fa-lightbulb mr-1"></i> Hiện Vocab Hint</label>
+                                <div class="hint-content">
+                                    <ul class="list-disc pl-4 space-y-1">
+                                        <li><strong>generated waste</strong> (n): rác thải được sinh ra</li>
+                                        <li><strong>proper treatment</strong> (n): sự xử lý đúng cách</li>
+                                        <li><strong>water and soil pollution</strong> (n): ô nhiễm nước và đất</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div id="toolbar_editor_22" class="hidden toolbar mb-2 bg-gray-100 border border-gray-300 rounded p-1 flex space-x-1 w-fit">
+                                <button type="button" onclick="formatDoc('bold')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 font-bold hover:bg-gray-200"><i class="fas fa-bold"></i></button>
+                                <button type="button" onclick="formatDoc('strikeThrough')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 hover:bg-gray-200"><i class="fas fa-strikethrough"></i></button>
+                                <button type="button" onclick="formatDoc('foreColor', 'red')" class="w-8 h-8 rounded flex items-center justify-center text-red-600 hover:bg-red-50"><i class="fas fa-palette"></i></button>
+                                <button type="button" onclick="formatDoc('hiliteColor', 'yellow')" class="w-8 h-8 rounded flex items-center justify-center text-yellow-600 hover:bg-yellow-50"><i class="fas fa-highlighter"></i></button>
+                                <div class="w-px h-5 bg-gray-300 my-auto mx-1"></div>
+                                <button type="button" onclick="addTeacherNote()" class="px-2 h-8 rounded flex items-center justify-center text-blue-600 text-sm font-semibold hover:bg-blue-50"><i class="fas fa-comment-medical mr-1"></i> Note</button>
+                            </div>
+                            <div id="editor_22" class="feedback-editor" contenteditable="true" placeholder="Viết câu trả lời của bạn vào đây..."></div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 flex justify-between">
+                        <button type="button" onclick="nextPage('page-5', 'page-4')" class="text-gray-500 hover:text-gray-800 font-semibold py-2 px-4 transition"><i class="fas fa-arrow-left mr-2"></i> Quay lại</button>
+                        <button type="button" onclick="nextPage('page-5', 'page-6')" class="bg-gray-800 hover:bg-gray-900 text-white font-semibold py-2 px-6 rounded-lg transition shadow">Tiếp tục: Phần 3.4 <i class="fas fa-arrow-right ml-2"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="page-6" class="page-section space-y-8">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 md:p-8">
+                    <div class="flex justify-between items-end border-b border-gray-100 pb-4 mb-6">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold mr-3">P3.4</div>
+                            <h2 class="text-xl font-bold text-gray-800">Socratic: Overpopulation (Solutions)</h2>
+                        </div>
+                        <span class="text-sm text-gray-500 font-medium">Phần 4/4</span>
+                    </div>
+
+                    <div class="space-y-6">
+                        <!-- Q23 -->
+                        <div class="mb-6 pl-4 border-l-2 border-green-400">
+                            <h4 class="font-bold text-gray-800 mb-2">23. Family Planning (Solutions)</h4>
+                            <p class="text-sm text-gray-700 mb-3 leading-relaxed"><strong>Câu hỏi dẫn dắt:</strong> Để kiểm soát số lượng người sinh ra, chính phủ cần thúc đẩy các chương trình về kế hoạch hóa gia đình và giáo dục về vấn đề gì? Mục đích là giúp làm chậm lại quá trình nào?</p>
+                            <div class="mb-3">
+                                <input type="checkbox" id="hint-p3-23" class="hint-toggle hidden">
+                                <label for="hint-p3-23" class="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded cursor-pointer hover:bg-emerald-100 transition"><i class="fas fa-lightbulb mr-1"></i> Hiện Vocab Hint</label>
+                                <div class="hint-content">
+                                    <ul class="list-disc pl-4 space-y-1">
+                                        <li><strong>family planning</strong> (n): kế hoạch hóa gia đình</li>
+                                        <li><strong>reproductive health education</strong> (n): giáo dục sức khỏe sinh sản</li>
+                                        <li><strong>slow population growth</strong> (v): làm chậm sự tăng trưởng dân số</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div id="toolbar_editor_23" class="hidden toolbar mb-2 bg-gray-100 border border-gray-300 rounded p-1 flex space-x-1 w-fit">
+                                <button type="button" onclick="formatDoc('bold')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 font-bold hover:bg-gray-200"><i class="fas fa-bold"></i></button>
+                                <button type="button" onclick="formatDoc('strikeThrough')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 hover:bg-gray-200"><i class="fas fa-strikethrough"></i></button>
+                                <button type="button" onclick="formatDoc('foreColor', 'red')" class="w-8 h-8 rounded flex items-center justify-center text-red-600 hover:bg-red-50"><i class="fas fa-palette"></i></button>
+                                <button type="button" onclick="formatDoc('hiliteColor', 'yellow')" class="w-8 h-8 rounded flex items-center justify-center text-yellow-600 hover:bg-yellow-50"><i class="fas fa-highlighter"></i></button>
+                                <div class="w-px h-5 bg-gray-300 my-auto mx-1"></div>
+                                <button type="button" onclick="addTeacherNote()" class="px-2 h-8 rounded flex items-center justify-center text-blue-600 text-sm font-semibold hover:bg-blue-50"><i class="fas fa-comment-medical mr-1"></i> Note</button>
+                            </div>
+                            <div id="editor_23" class="feedback-editor" contenteditable="true" placeholder="Viết câu trả lời của bạn vào đây..."></div>
+                        </div>
+
+                        <!-- Q24 -->
+                        <div class="mb-6 pl-4 border-l-2 border-green-400">
+                            <h4 class="font-bold text-gray-800 mb-2">24. Sustainable Urban Planning (Solutions)</h4>
+                            <p class="text-sm text-gray-700 mb-3 leading-relaxed"><strong>Câu hỏi dẫn dắt:</strong> Khuyến khích cải thiện nhà ở và giao thông thông qua việc quy hoạch đô thị bền vững sẽ giúp thành phố giảm thiểu được tình trạng gì?</p>
+                            <div class="mb-3">
+                                <input type="checkbox" id="hint-p3-24" class="hint-toggle hidden">
+                                <label for="hint-p3-24" class="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded cursor-pointer hover:bg-emerald-100 transition"><i class="fas fa-lightbulb mr-1"></i> Hiện Vocab Hint</label>
+                                <div class="hint-content">
+                                    <ul class="list-disc pl-4 space-y-1">
+                                        <li><strong>sustainable urban planning</strong> (n): quy hoạch đô thị bền vững</li>
+                                        <li><strong>reduce overcrowding</strong> (v): giảm thiểu tình trạng quá tải/đông đúc</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div id="toolbar_editor_24" class="hidden toolbar mb-2 bg-gray-100 border border-gray-300 rounded p-1 flex space-x-1 w-fit">
+                                <button type="button" onclick="formatDoc('bold')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 font-bold hover:bg-gray-200"><i class="fas fa-bold"></i></button>
+                                <button type="button" onclick="formatDoc('strikeThrough')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 hover:bg-gray-200"><i class="fas fa-strikethrough"></i></button>
+                                <button type="button" onclick="formatDoc('foreColor', 'red')" class="w-8 h-8 rounded flex items-center justify-center text-red-600 hover:bg-red-50"><i class="fas fa-palette"></i></button>
+                                <button type="button" onclick="formatDoc('hiliteColor', 'yellow')" class="w-8 h-8 rounded flex items-center justify-center text-yellow-600 hover:bg-yellow-50"><i class="fas fa-highlighter"></i></button>
+                                <div class="w-px h-5 bg-gray-300 my-auto mx-1"></div>
+                                <button type="button" onclick="addTeacherNote()" class="px-2 h-8 rounded flex items-center justify-center text-blue-600 text-sm font-semibold hover:bg-blue-50"><i class="fas fa-comment-medical mr-1"></i> Note</button>
+                            </div>
+                            <div id="editor_24" class="feedback-editor" contenteditable="true" placeholder="Viết câu trả lời của bạn vào đây..."></div>
+                        </div>
+
+                        <!-- Q25 -->
+                        <div class="mb-6 pl-4 border-l-2 border-green-400">
+                            <h4 class="font-bold text-gray-800 mb-2">25. Environmental Regulations (Solutions)</h4>
+                            <p class="text-sm text-gray-700 mb-3 leading-relaxed"><strong>Câu hỏi dẫn dắt:</strong> Củng cố các quy định môi trường và quản lý rác thải sẽ giúp kiểm soát chặt chẽ các hoạt động gây hại, từ đó ngăn chặn tình trạng gì đối với nguồn tài nguyên thiên nhiên của con người?</p>
+                            <div class="mb-3">
+                                <input type="checkbox" id="hint-p3-25" class="hint-toggle hidden">
+                                <label for="hint-p3-25" class="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded cursor-pointer hover:bg-emerald-100 transition"><i class="fas fa-lightbulb mr-1"></i> Hiện Vocab Hint</label>
+                                <div class="hint-content">
+                                    <ul class="list-disc pl-4 space-y-1">
+                                        <li><strong>environmental regulations</strong> (n): các quy định về môi trường</li>
+                                        <li><strong>resource overconsumption</strong> (n): sự tiêu thụ tài nguyên quá mức</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div id="toolbar_editor_25" class="hidden toolbar mb-2 bg-gray-100 border border-gray-300 rounded p-1 flex space-x-1 w-fit">
+                                <button type="button" onclick="formatDoc('bold')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 font-bold hover:bg-gray-200"><i class="fas fa-bold"></i></button>
+                                <button type="button" onclick="formatDoc('strikeThrough')" class="w-8 h-8 rounded flex items-center justify-center text-gray-700 hover:bg-gray-200"><i class="fas fa-strikethrough"></i></button>
+                                <button type="button" onclick="formatDoc('foreColor', 'red')" class="w-8 h-8 rounded flex items-center justify-center text-red-600 hover:bg-red-50"><i class="fas fa-palette"></i></button>
+                                <button type="button" onclick="formatDoc('hiliteColor', 'yellow')" class="w-8 h-8 rounded flex items-center justify-center text-yellow-600 hover:bg-yellow-50"><i class="fas fa-highlighter"></i></button>
+                                <div class="w-px h-5 bg-gray-300 my-auto mx-1"></div>
+                                <button type="button" onclick="addTeacherNote()" class="px-2 h-8 rounded flex items-center justify-center text-blue-600 text-sm font-semibold hover:bg-blue-50"><i class="fas fa-comment-medical mr-1"></i> Note</button>
+                            </div>
+                            <div id="editor_25" class="feedback-editor" contenteditable="true" placeholder="Viết câu trả lời của bạn vào đây..."></div>
+                        </div>
+                    </div>
+
+                    <div class="mt-10 pt-6 border-t border-gray-200 flex justify-between items-center" id="student-submit-area">
+                        <button type="button" onclick="nextPage('page-6', 'page-5')" class="text-gray-500 hover:text-gray-800 font-semibold py-2 px-4 transition"><i class="fas fa-arrow-left mr-2"></i> Quay lại</button>
+                        <button type="button" onclick="submitQuiz()" id="submit-btn" class="bg-emerald-600 hover:bg-emerald-700 text-white text-lg font-bold py-3 px-10 rounded-full shadow-lg transition-transform hover:scale-105">
+                            <i class="fas fa-paper-plane mr-2"></i> Nộp Bài & Lấy Link
+                        </button>
+                    </div>
+
+                    <div class="mt-10 pt-6 border-t border-gray-200 flex justify-end items-center hidden" id="teacher-submit-area">
+                        <button type="button" onclick="generateTeacherShareLink()" id="teacher-submit-btn" class="bg-blue-600 hover:bg-blue-700 text-white text-lg font-bold py-3 px-10 rounded-full shadow-lg transition-transform hover:scale-105">
+                            <i class="fas fa-check-double mr-2"></i> Hoàn tất chấm & Trả bài
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <footer class="mt-12 text-center text-sm text-gray-400 pb-8">
+        Created by Uyen Nguyen
+    </footer>
+
+    <script>
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwXrBCWO8sA-digWz-bVotLI2dti2TNuxhf29tIJ-V1tFT1nCURKBli2ln_HKHKGGci/exec"; 
+        const QUIZ_ID = "Environment_Quiz";
+
+        function showModal(title, message, type = 'info', onConfirm = null) {
+            const modal = document.getElementById('custom-modal');
+            const icon = document.getElementById('modal-icon');
+            const confirmBtn = document.getElementById('modal-confirm');
+            const cancelBtn = document.getElementById('modal-cancel');
+            
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-message').innerText = message;
+            
+            if (type === 'warning' || type === 'error') {
+                icon.innerHTML = '<i class="fas fa-exclamation-triangle text-red-500"></i>';
+                confirmBtn.className = "flex-1 px-4 py-2.5 bg-red-500 text-white rounded-xl font-bold hover:bg-red-600 shadow-md shadow-red-200 transition";
+            } else if (type === 'confirm') {
+                icon.innerHTML = '<i class="fas fa-question-circle text-emerald-500"></i>';
+                confirmBtn.className = "flex-1 px-4 py-2.5 bg-emerald-500 text-white rounded-xl font-bold hover:bg-emerald-600 shadow-md shadow-emerald-200 transition";
+            } else {
+                icon.innerHTML = '<i class="fas fa-info-circle text-blue-500"></i>';
+                confirmBtn.className = "flex-1 px-4 py-2.5 bg-blue-500 text-white rounded-xl font-bold hover:bg-blue-600 shadow-md shadow-blue-200 transition";
+            }
+
+            if (onConfirm) {
+                cancelBtn.classList.remove('hidden');
+                cancelBtn.onclick = () => closeModal();
+                confirmBtn.onclick = () => { closeModal(); onConfirm(); };
+            } else {
+                cancelBtn.classList.add('hidden');
+                confirmBtn.onclick = () => closeModal();
+            }
+
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('custom-modal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        function toggleLoader(show, text = 'Đang tải...') {
+            const loader = document.getElementById('loader-overlay');
+            document.getElementById('loader-text').innerText = text;
+            loader.style.display = show ? 'flex' : 'none';
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentMode = urlParams.get('mode');
+
+        if (!currentMode) {
+            document.querySelectorAll('.feedback-editor').forEach(editor => {
+                editor.addEventListener('copy', preventAction);
+                editor.addEventListener('cut', preventAction);
+                editor.addEventListener('paste', preventAction);
+            });
+        }
+
+        function preventAction(e) {
+            e.preventDefault();
+            showModal("Cảnh báo", "Hệ thống yêu cầu bạn tự gõ câu trả lời. Tuyệt đối không sử dụng chức năng sao chép, cắt hoặc dán (Copy/Paste/Cut).", "warning");
+        }
+
+        function nextPage(currentId, nextId) {
+            document.getElementById(currentId).classList.remove('active');
+            document.getElementById(nextId).classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Drag & Drop Handlers
+        function allowDrop(ev) { ev.preventDefault(); }
+        function dragEnter(ev) {
+            ev.preventDefault();
+            if (ev.target.classList.contains('droppable-area') || ev.target.classList.contains('match-drop-zone')) {
+                ev.target.classList.add('drag-over');
+            }
+        }
+        function dragLeave(ev) {
+            if (ev.target.classList.contains('droppable-area') || ev.target.classList.contains('match-drop-zone')) {
+                ev.target.classList.remove('drag-over');
+            }
+        }
+        function drag(ev) { ev.dataTransfer.setData("text", ev.target.id); }
+
+        function drop(ev) {
+            ev.preventDefault();
+            let target = ev.target;
+            target.classList.remove('drag-over');
+            
+            const dataId = ev.dataTransfer.getData("text");
+            const draggedElement = document.getElementById(dataId);
+            if(!draggedElement || draggedElement.classList.contains('match-item')) return;
+
+            const draggedPool = draggedElement.getAttribute('data-pool');
+            let targetPoolId = draggedPool === 'gapfill-a' ? 'wrap-vocab-a' : 'wrap-vocab-b';
+
+            if (target.classList.contains('droppable-area')) {
+                const dropZoneExpectedPool = target.getAttribute('data-pool');
+                if(draggedPool !== dropZoneExpectedPool) return;
+
+                if (target.children.length > 0) {
+                    const existingItem = target.children[0];
+                    const existingPoolId = existingItem.getAttribute('data-pool') === 'gapfill-a' ? 'wrap-vocab-a' : 'wrap-vocab-b';
+                    document.getElementById(existingPoolId).appendChild(existingItem);
+                } else { target.innerHTML = ''; }
+                target.appendChild(draggedElement);
+            } 
+            else if (target.classList.contains('draggable-item') && target.parentElement.classList.contains('droppable-area')) {
+                let dropZone = target.parentElement;
+                if(draggedPool !== dropZone.getAttribute('data-pool')) return;
+                
+                const existingPoolId = target.getAttribute('data-pool') === 'gapfill-a' ? 'wrap-vocab-a' : 'wrap-vocab-b';
+                document.getElementById(existingPoolId).appendChild(target);
+                dropZone.appendChild(draggedElement);
+            }
+            else if (target.closest('.sticky-pool')) {
+                document.getElementById(targetPoolId).appendChild(draggedElement);
+            }
+        }
+
+        function dropMatch(ev) {
+            ev.preventDefault();
+            let target = ev.target;
+            target.classList.remove('drag-over');
+            const dataId = ev.dataTransfer.getData("text");
+            const draggedElement = document.getElementById(dataId);
+            if(!draggedElement || !draggedElement.classList.contains('match-item')) return;
+
+            if(!target.classList.contains('match-drop-zone') && target.parentElement.classList.contains('match-drop-zone')){
+                target = target.parentElement;
+            }
+            if (target.classList.contains('match-drop-zone')) {
+                const existingItem = Array.from(target.children).find(c => c.classList.contains('match-item'));
+                if (existingItem) document.getElementById('pool-match').appendChild(existingItem);
+                target.appendChild(draggedElement);
+            }
+            else if (target.id === 'pool-match' || target.closest('#pool-match')) {
+                document.getElementById('pool-match').appendChild(draggedElement);
+            }
+        }
+
+        function submitQuiz() {
+            const studentNameInput = document.getElementById('student-name');
+            const studentName = studentNameInput.value.trim();
+            
+            if (!studentName) {
+                showModal("Thiếu thông tin", "Bạn bắt buộc phải nhập Họ và Tên ở khung thông tin trên đầu trang để nộp bài.", "warning");
+                studentNameInput.focus();
+                studentNameInput.parentElement.classList.add('ring-2', 'ring-red-400');
+                setTimeout(() => studentNameInput.parentElement.classList.remove('ring-2', 'ring-red-400'), 2000);
+                return;
+            }
+
+            showModal("Xác nhận nộp bài", "Bạn đã chắc chắn muốn nộp bài? Hệ thống sẽ tạo link nộp và gửi cho Giáo viên.", "confirm", () => {
+                processStudentSubmit(studentName);
+            });
+        }
+
+        function processStudentSubmit(studentName) {
+            let totalScore = 0;
+            const maxScore = 31; // 10 MCQ + 5 Match + 10 single gap + 6 para gap/link
+
+            const p1Answers = [];
+            document.querySelectorAll('.mcq-question').forEach(q => {
+                const checked = q.querySelector('input[type="radio"]:checked');
+                const expected = q.getAttribute('data-ans');
+                p1Answers.push(checked ? checked.value : "");
+                if (checked && checked.value === expected) { totalScore++; q.classList.add('border-green-400', 'bg-green-50'); }
+                else if (checked) { q.classList.add('border-red-400', 'bg-red-50'); }
+            });
+
+            const p1Match = [];
+            document.querySelectorAll('.match-drop-zone').forEach(zone => {
+                const child = zone.querySelector('.match-item');
+                const expected = zone.getAttribute('data-expected');
+                const val = child ? child.getAttribute('data-val') : "";
+                p1Match.push(val);
+                if (val === expected) { totalScore++; zone.classList.add('correct-ans'); }
+                else if (val) { zone.classList.add('wrong-ans'); }
+            });
+
+            const p2Words = [];
+            document.querySelectorAll('#gapfill-container .droppable-area, #para-container .droppable-area').forEach(zone => {
+                const child = zone.querySelector('.draggable-item');
+                const expected = zone.getAttribute('data-expected');
+                const val = child ? child.getAttribute('data-val') : "";
+                p2Words.push(val);
+                if (val === expected) { totalScore++; zone.classList.add('correct-ans'); }
+                else if (val) { zone.classList.add('wrong-ans'); }
+            });
+
+            const p2Types = [];
+            document.querySelectorAll('#gapfill-container .type-select').forEach(sel => {
+                const expected = sel.getAttribute('data-expected');
+                const val = sel.value;
+                p2Types.push(val);
+                if (val === expected) { totalScore++; sel.classList.add('correct-ans', 'font-bold'); }
+                else if (val) { sel.classList.add('wrong-ans'); }
+            });
+
+            const p4Answers = [];
+            document.querySelectorAll('.feedback-editor').forEach(ed => p4Answers.push(ed.innerHTML));
+
+            const payloadData = {
+                p1_mcq: p1Answers, p1_match: p1Match,
+                p2w: p2Words, p2t: p2Types,
+                p4: p4Answers
+            };
+
+            const requestPayload = {
+                action: "save_student",
+                quizId: QUIZ_ID,
+                studentName: studentName,
+                score: `${totalScore}/${maxScore}`,
+                baseUrl: window.location.href.split('?')[0],
+                data: payloadData
+            };
+
+            toggleLoader(true, "Đang khởi tạo mã ID và nộp bài...");
+
+            fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(requestPayload)
+            })
+            .then(res => res.json())
+            .then(response => {
+                toggleLoader(false);
+                if(response.status === 'success') {
+                    const finalLink = window.location.href.split('?')[0] + "?mode=feedback&id=" + response.id;
+                    showBanner(finalLink, `${totalScore}/${maxScore}`);
+                } else {
+                    showModal("Lỗi hệ thống", "Không thể lưu bài: " + response.message, "error");
+                }
+            })
+            .catch(error => {
+                toggleLoader(false);
+                showModal("Lỗi kết nối", "Có lỗi xảy ra khi nộp bài. Vui lòng thử lại. Chi tiết: " + error.toString(), "error");
+            });
+        }
+
+        function showBanner(link, score) {
+            document.getElementById('share-link').value = link;
+            if(score) document.getElementById('banner-score').innerText = score;
+            document.getElementById('submit-banner').classList.add('show');
+            document.getElementById('student-submit-area').style.display = 'none';
+
+            document.getElementById('student-name').readOnly = true;
+            document.querySelectorAll('input[type="radio"], select, input[type="checkbox"]').forEach(el => el.disabled = true);
+            document.querySelectorAll('.draggable-item, .match-item').forEach(el => el.setAttribute('draggable', 'false'));
+            document.querySelectorAll('.feedback-editor').forEach(el => el.setAttribute('contenteditable', 'false'));
+        }
+
+        function generateTeacherShareLink() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+            if(!id) return;
+
+            const p4Answers = [];
+            document.querySelectorAll('.feedback-editor').forEach(ed => p4Answers.push(ed.innerHTML));
+
+            const requestPayload = {
+                action: "save_teacher",
+                quizId: QUIZ_ID,
+                id: id,
+                data: { p4: p4Answers }
+            };
+
+            toggleLoader(true, "Đang lưu lời phê của Giáo viên...");
+
+            fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(requestPayload)
+            })
+            .then(res => res.json())
+            .then(response => {
+                toggleLoader(false);
+                if(response.status === 'success') {
+                    const viewLink = window.location.href.split('?')[0] + "?mode=view_feedback&id=" + response.id;
+                    document.getElementById('share-link').value = viewLink;
+                    document.getElementById('banner-title').innerText = "Đã lưu lời phê!";
+                    document.getElementById('banner-subtitle').innerText = "Copy link và gửi lại cho học sinh để xem kết quả.";
+                    document.getElementById('submit-banner').classList.replace('bg-emerald-600', 'bg-blue-600');
+                    document.getElementById('submit-banner').classList.add('show');
+                    document.getElementById('teacher-submit-area').style.display = 'none';
+                } else {
+                    showModal("Lỗi hệ thống", "Không thể lưu lời phê: " + response.message, "error");
+                }
+            })
+            .catch(error => {
+                toggleLoader(false);
+                showModal("Lỗi kết nối", "Có lỗi xảy ra. Vui lòng thử lại. Chi tiết: " + error, "error");
+            });
+        }
+
+        function copyLink() {
+            const linkInput = document.getElementById('share-link');
+            linkInput.select();
+            linkInput.setSelectionRange(0, 99999);
+            try {
+                document.execCommand('copy');
+                const btn = document.getElementById('copy-btn');
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = `<i class="fas fa-check"></i> <span>Đã Copy!</span>`;
+                btn.classList.add('bg-gray-100', 'text-gray-800');
+                setTimeout(() => { btn.innerHTML = originalHtml; btn.classList.remove('bg-gray-100', 'text-gray-800'); }, 2000);
+            } catch (err) { }
+        }
+
+        function checkUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const mode = urlParams.get('mode');
+            const id = urlParams.get('id');
+
+            if (!mode || !id) return;
+            
+            toggleLoader(true, "Đang tải dữ liệu bài làm...");
+
+            fetch(`${APPS_SCRIPT_URL}?id=${id}&quizId=${QUIZ_ID}`)
+            .then(res => res.json())
+            .then(response => {
+                toggleLoader(false);
+                if (response.status === 'success') {
+                    populateDataToUI(response.data, mode);
+                } else {
+                    showModal("Lỗi dữ liệu", "Không tìm thấy dữ liệu cho mã ID này hoặc bài làm đã bị xóa.", "error");
+                }
+            })
+            .catch(err => {
+                toggleLoader(false);
+                showModal("Lỗi kết nối", "Không thể lấy dữ liệu từ hệ thống. Vui lòng kiểm tra lại đường truyền.", "error");
+            });
+        }
+
+        function populateDataToUI(dataObj, mode) {
+            const studentPayload = dataObj.studentData;
+            const teacherPayload = dataObj.teacherData; 
+
+            document.getElementById('name-input-section').classList.add('hidden');
+            document.getElementById('student-submit-area').classList.add('hidden');
+            document.getElementById('teacher-info-panel').classList.remove('hidden');
+            document.getElementById('display-student-name').innerText = dataObj.name || "Ẩn danh";
+
+            document.querySelectorAll('.mcq-question').forEach((q, i) => {
+                const expected = q.getAttribute('data-ans');
+                const studentVal = studentPayload.p1_mcq[i];
+                q.querySelectorAll('input[type="radio"]').forEach(r => {
+                    r.disabled = true;
+                    if (r.value === studentVal) r.checked = true;
+                });
+                if (studentVal === expected) {
+                    q.querySelector(`input[value="${studentVal}"]`).parentElement.classList.add('bg-green-100');
+                } else {
+                    if (studentVal) q.querySelector(`input[value="${studentVal}"]`).parentElement.classList.add('bg-red-100');
+                    q.querySelector(`input[value="${expected}"]`).parentElement.classList.add('bg-green-100', 'border', 'border-green-400');
+                }
+            });
+
+            document.querySelectorAll('.match-drop-zone').forEach((zone, i) => {
+                const expected = zone.getAttribute('data-expected');
+                const studentVal = studentPayload.p1_match[i];
+                if (studentVal) {
+                    const poolItem = document.querySelector(`.match-item[data-val="${studentVal}"]`);
+                    zone.innerHTML = `<div class="match-item cursor-default pointer-events-none">${poolItem ? poolItem.innerText : studentVal}</div>`;
+                }
+                if (studentVal === expected) zone.classList.add('correct-ans');
+                else {
+                    zone.classList.add('wrong-ans');
+                    const hint = document.createElement('div');
+                    hint.className = "text-xs text-red-600 mt-1 font-bold w-full";
+                    const expItem = document.querySelector(`.match-item[data-val="${expected}"]`);
+                    hint.innerText = `Đúng: ${expItem ? expItem.innerText : expected}`;
+                    zone.parentElement.appendChild(hint);
+                }
+            });
+
+            document.querySelectorAll('#gapfill-container .droppable-area, #para-container .droppable-area').forEach((zone, i) => {
+                const expected = zone.getAttribute('data-expected');
+                const studentVal = studentPayload.p2w[i];
+                if (studentVal) {
+                    const isLink = ['First_and_foremost', 'Consequently', 'Primarily', 'As_a_result', 'Furthermore', 'Ultimately'].includes(studentVal);
+                    const txt = studentVal.replace(/_/g, ' ');
+                    zone.innerHTML = `<div class="draggable-item cursor-default pointer-events-none ${isLink ? 'linking-word' : ''}">${txt}</div>`;
+                }
+                if (studentVal === expected) zone.classList.add('correct-ans');
+                else {
+                    zone.classList.add('wrong-ans');
+                    const tt = document.createElement('span');
+                    tt.innerHTML = `<br><span class="text-xs text-red-600 font-bold whitespace-nowrap">Đúng: ${expected.replace(/_/g, ' ')}</span>`;
+                    zone.parentElement.appendChild(tt);
+                }
+            });
+
+            document.querySelectorAll('#gapfill-container .type-select').forEach((sel, i) => {
+                const expected = sel.getAttribute('data-expected');
+                const studentVal = studentPayload.p2t[i];
+                sel.value = studentVal || "";
+                sel.disabled = true;
+                if (studentVal === expected) sel.classList.add('correct-ans', 'font-bold');
+                else {
+                    sel.classList.add('wrong-ans');
+                    const txt = document.createElement('span');
+                    txt.className = "text-xs text-red-600 font-bold ml-2";
+                    txt.innerText = `(Đúng: ${expected})`;
+                    sel.parentElement.appendChild(txt);
+                }
+            });
+
+            document.getElementById('pool-vocab-a').style.display = 'none';
+            document.getElementById('pool-vocab-b').style.display = 'none';
+            document.getElementById('pool-match').parentElement.style.display = 'none';
+
+            let finalEssays = studentPayload.p4 || [];
+            if (mode === 'view_feedback' && teacherPayload && teacherPayload.p4) {
+                finalEssays = teacherPayload.p4;
+            }
+
+            const editors = document.querySelectorAll('.feedback-editor');
+            finalEssays.forEach((content, i) => {
+                if(editors[i]){
+                    if(!content || content.trim() === '') {
+                        editors[i].innerHTML = '<span style="color:#ef4444; font-style:italic;">(Học sinh không làm câu này)</span>';
+                    } else {
+                        editors[i].innerHTML = content;
+                    }
+                }
+            });
+
+            document.querySelectorAll('.page-section').forEach(s => s.style.display = 'block');
+            document.querySelectorAll('button[onclick^="nextPage"]').forEach(btn => btn.style.display = 'none');
+
+            if (mode === 'feedback') {
+                document.getElementById('teacher-submit-area').classList.remove('hidden');
+                document.querySelectorAll('.toolbar').forEach(tb => tb.classList.remove('hidden'));
+            } else if (mode === 'view_feedback') {
+                document.querySelector('#teacher-info-panel .bg-yellow-50').innerHTML = '<strong><i class="fas fa-check-circle"></i> BÀI ĐÃ ĐƯỢC CHẤM</strong><br>Dưới đây là kết quả và lời phê của Giáo viên. Click vào các chỗ bôi đậm màu xanh (nếu có) ở các phần Tự luận để xem Note.';
+                document.querySelector('#teacher-info-panel .bg-yellow-50').classList.replace('bg-yellow-50', 'bg-green-50');
+                document.querySelector('#teacher-info-panel .border-yellow-200').classList.replace('border-yellow-200', 'border-green-200');
+                document.querySelector('#teacher-info-panel .text-yellow-800').classList.replace('text-yellow-800', 'text-green-800');
+                document.querySelectorAll('.feedback-editor').forEach(ed => ed.setAttribute('contenteditable', 'false'));
+            }
+        }
+
+        function formatDoc(cmd, value=null) { document.execCommand(cmd, false, value); }
+
+        document.addEventListener('mouseover', function(event) {
+            const noteEl = event.target.closest('.teacher-note-highlight');
+            if (noteEl) {
+                const safeNote = noteEl.getAttribute('data-note');
+                const tooltip = document.getElementById('floating-note-tooltip');
+                document.getElementById('floating-note-content').innerText = safeNote;
+                tooltip.classList.remove('hidden');
+                
+                const rect = noteEl.getBoundingClientRect();
+                const tooltipRect = tooltip.getBoundingClientRect();
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+                
+                let topPos = rect.top + scrollTop - tooltipRect.height - 12;
+                let leftPos = rect.left + scrollLeft + (rect.width / 2) - (tooltipRect.width / 2);
+                
+                if (topPos < scrollTop) {
+                    topPos = rect.bottom + scrollTop + 12;
+                    document.getElementById('tooltip-arrow').className = "absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-white border-t border-l border-blue-200 rotate-45";
+                } else {
+                    document.getElementById('tooltip-arrow').className = "absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-white border-b border-r border-blue-200 rotate-45";
+                }
+                tooltip.style.top = topPos + 'px'; tooltip.style.left = leftPos + 'px';
+            }
+        });
+
+        document.addEventListener('mouseout', function(event) {
+            const noteEl = event.target.closest('.teacher-note-highlight');
+            const tooltip = document.getElementById('floating-note-tooltip');
+            if (noteEl) {
+                setTimeout(() => { if (!tooltip.matches(':hover')) tooltip.classList.add('hidden'); }, 100);
+            }
+        });
+        
+        document.getElementById('floating-note-tooltip').addEventListener('mouseleave', function() {
+            this.classList.add('hidden');
+        });
+
+        function addTeacherNote() {
+            const note = prompt("Nhập lời phê/ghi chú:"); 
+            if (note) {
+                const safeNote = note.replace(/'/g, "&apos;").replace(/"/g, '&quot;').replace(/\n/g, '\\n');
+                const selection = window.getSelection();
+                if (selection.rangeCount > 0 && selection.toString().length > 0) {
+                    const selectedText = selection.toString();
+                    const html = `<span class="teacher-note-highlight" style="background-color: #dbeafe; border-bottom: 2px solid #3b82f6; cursor: help; padding: 0 4px; border-radius: 3px; font-weight: 500; color: #1e3a8a; transition: all 0.2s;" data-note="${safeNote}">${selectedText} <i class="fas fa-comment-dots text-xs text-blue-500"></i></span>`;
+                    document.execCommand('insertHTML', false, html);
+                } else {
+                    const html = ` <span class="teacher-note-highlight" style="background-color: #dbeafe; color: #1e3a8a; padding: 2px 6px; border-radius: 4px; cursor: help; border: 1px solid #60a5fa; display: inline-flex; align-items: center; gap: 4px;" data-note="${safeNote}"><i class="fas fa-comment-dots text-blue-500"></i> Ghi chú</span> `;
+                    document.execCommand('insertHTML', false, html);
+                }
+            }
+        }
+
+        window.onload = checkUrlParams;
+    </script>
+</body>
+</html>
